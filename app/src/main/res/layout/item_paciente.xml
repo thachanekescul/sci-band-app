@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10dp"
+    android:background="@android:color/white">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_background">
+
+    <!-- Imagen del paciente -->
+    <ImageView
+        android:id="@+id/imgPaciente"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"/>
+
+    <!-- Nombre del paciente -->
+    <TextView
+        android:id="@+id/txtNombrePaciente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/imgPaciente"
+        android:layout_alignParentTop="true"
+        android:text="Nombre del Paciente"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="30dp"/>
+
+    <!-- Botones -->
+    <LinearLayout
+        android:id="@+id/btnContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+    android:layout_below="@id/txtNombrePaciente"
+    android:layout_toEndOf="@id/imgPaciente"
+    android:layout_marginTop="10dp">
+
+    <Button
+        android:id="@+id/btnMedirPaciente"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:text="Medir"
+        android:layout_marginBottom="5dp"
+    android:backgroundTint="@color/focuset"/>
+
+    <Button
+        android:id="@+id/btnEditarPaciente"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:text="Editar"
+        android:backgroundTint="@color/maint"/>
+</LinearLayout>
+    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+    </LinearLayout>

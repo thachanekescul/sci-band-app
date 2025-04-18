@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_main"
+    tools:context=".cuidador.PacientesCUIDFragment">
+
+    <!-- Contenedor principal vertical -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <!-- Nombre de la organización -->
+        <TextView
+            android:id="@+id/txtNombreOrganizacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Organización"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/main2"/>
+
+        <!-- Detalles del perfil -->
+        <TextView
+            android:id="@+id/txtDetallesPerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detalles del perfil del cuidador"
+            android:textSize="16sp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/main2"/>
+
+        <!-- Foto de perfil -->
+        <ImageView
+            android:id="@+id/imgFotoPerfil"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"/>
+
+
+        <!-- Botón de edición -->
+        <Button
+            android:id="@+id/btnEditarPerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Editar Perfil"
+            android:layout_marginTop="15dp"
+            android:backgroundTint="@color/maint"/>
+
+        <!-- RecyclerView para pacientes -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerPacientes"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="20dp"
+            tools:listitem="@layout/item_paciente"/>
+
+    </LinearLayout>
+
+</FrameLayout>
