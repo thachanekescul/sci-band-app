@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="10dp"
-    android:background="@android:color/white">
+    android:background="@color/fondo_main">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -30,17 +30,18 @@
         android:layout_centerVertical="true"/>
 
     <!-- Nombre del paciente -->
-    <TextView
-        android:id="@+id/txtNombrePaciente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/imgPaciente"
-        android:layout_alignParentTop="true"
-        android:text="Nombre del Paciente"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="30dp"/>
+        <TextView
+            android:id="@+id/txtNombrePaciente"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="-80dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="30dp"
+            android:layout_toEndOf="@id/imgPaciente"
+            android:text="Nombre del Paciente"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
     <!-- Botones -->
     <LinearLayout

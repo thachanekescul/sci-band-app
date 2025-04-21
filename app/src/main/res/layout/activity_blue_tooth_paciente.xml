@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/fondo_main"
+    tools:context=".paciente.BlueToothPaciente">
+
+    <TextView
+        android:id="@+id/tvBluetoothInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Para usar esta aplicación necesitas tener Bluetooth activado. Si no lo activas, no se podrá utilizar la pulsera del paciente."
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:paddingBottom="24dp"
+        android:textColor="@color/maint"/>
+
+    <Button
+        android:id="@+id/btnActivarBluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activar Bluetooth"
+        android:background="@drawable/button_background"/>
+</LinearLayout>

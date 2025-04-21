@@ -1,24 +1,17 @@
 package com.example.appv1.logins
+
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.auth.FirebaseUser
-
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import com.example.appv1.admin.HomeAdmin
-import com.example.appv1.cuidador.MainActivityCuidador
-import com.example.appv1.registro.RegistroAdmin
-import com.example.appv1.registro.RegistroCuidador
+import com.example.appv1.logins.CuidadorLogin
 import com.example.appv1.registro.RegistroDeLaOrg
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AdminLogin : AppCompatActivity() {
 
@@ -32,7 +25,8 @@ class AdminLogin : AppCompatActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPass = findViewById<EditText>(R.id.etPass)
         val tvRegistrar = findViewById<TextView>(R.id.tvRegistrar)
-        val btnAccesocuidador=findViewById<Button>(R.id.btncuidadoracceso)
+        val btnAccesocuidador = findViewById<Button>(R.id.btncuidadoracceso)
+
         db = FirebaseFirestore.getInstance()
 
         btnLogin.setOnClickListener {
@@ -47,23 +41,16 @@ class AdminLogin : AppCompatActivity() {
         }
 
         tvRegistrar.setOnClickListener {
-            val intent = Intent(this@AdminLogin, RegistroDeLaOrg::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegistroDeLaOrg::class.java))
         }
-
-
 
         btnAccesocuidador.setOnClickListener {
-            val intent = Intent(this@AdminLogin, CuidadorLogin::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, CuidadorLogin::class.java))
         }
-
     }
 
-
-
     private fun loginUser(email: String, password: String) {
-        val organizacionesRef = db.collection("organizacion") // Asegúrate del nombre exacto: "organizacion", no "organizaciones"
+        val organizacionesRef = db.collection("organizacion")
 
         organizacionesRef.get()
             .addOnSuccessListener { orgSnapshots ->
@@ -71,40 +58,53 @@ class AdminLogin : AppCompatActivity() {
                 var consultasPendientes = orgSnapshots.size()
 
                 if (consultasPendientes == 0) {
-                    Toast.makeText(this@AdminLogin, "No hay organizaciones registradas", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "No hay organizaciones registradas", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 
                 for (orgDoc in orgSnapshots) {
-                    val Adminref = orgDoc.reference.collection("administradores")
+                    val adminRef = orgDoc.reference.collection("administradores")
 
-                    Adminref.whereEqualTo("email", email)
+                    adminRef.whereEqualTo("email", email)
                         .whereEqualTo("password", password)
                         .get()
-                        .addOnSuccessListener { AdminSnapshots ->
-                            if (!AdminSnapshots.isEmpty && !encontrado) {
+                        .addOnSuccessListener { adminSnapshots ->
+                            if (!adminSnapshots.isEmpty && !encontrado) {
                                 encontrado = true
-                                Toast.makeText(this@AdminLogin, "Bienvenido, $email", Toast.LENGTH_SHORT).show()
-                                startActivity(Intent(this, MainActivityCuidador::class.java))
+
+                                val adminDoc = adminSnapshots.documents[0]
+                                val idAdmin = adminDoc.id
+                                val idOrganizacion = orgDoc.id
+
+                                // Guardar sesión
+                                val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+                                prefs.edit()
+                                    .putString("tipo_usuario", "admin")
+                                    .putString("id_usuario", idAdmin)
+                                    .putString("id_organizacion", idOrganizacion)
+                                    .apply()
+
+                                Toast.makeText(this, "Bienvenido, $email", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, HomeAdmin::class.java))
+                                finish()
                             }
 
                             consultasPendientes--
 
                             if (consultasPendientes == 0 && !encontrado) {
-                                Toast.makeText(this@AdminLogin, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                             }
                         }
                         .addOnFailureListener {
                             consultasPendientes--
                             if (consultasPendientes == 0 && !encontrado) {
-                                Toast.makeText(this@AdminLogin, "Error al verificar los datos", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Error al verificar los datos", Toast.LENGTH_SHORT).show()
                             }
                         }
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this@AdminLogin, "Error al obtener las organizaciones", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al obtener las organizaciones", Toast.LENGTH_SHORT).show()
             }
     }
 }
-

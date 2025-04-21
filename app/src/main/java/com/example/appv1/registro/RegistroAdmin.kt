@@ -89,6 +89,5 @@ class RegistroAdmin : AppCompatActivity() {
         }
     }
 
-    // Función para generar un código aleatorio de 6 caracteres
 
 }

@@ -62,7 +62,7 @@ class RegistroCuidador : AppCompatActivity() {
                 if (!orgDoc.exists()) {
                     Toast.makeText(this, "La organización no existe", Toast.LENGTH_SHORT).show()
                 } else {
-                    val passwordEncriptada = encriptarPassword(pass)
+                    val idCuidador = generarIdCuidador()
                     val cuidadoresRef = orgRef.collection("cuidadores")
 
                     // Validar si el email ya está registrado
@@ -73,7 +73,7 @@ class RegistroCuidador : AppCompatActivity() {
                             } else {
                                 val datos = hashMapOf(
                                     "email" to email,
-                                    "password" to passwordEncriptada,
+                                    "password" to pass,
                                     "nombre" to nombre,
                                     "ape" to apellido,
                                     "cel" to celular
@@ -82,7 +82,7 @@ class RegistroCuidador : AppCompatActivity() {
 
 
 
-                                cuidadoresRef.add(datos)
+                                cuidadoresRef.document(idCuidador).set(datos)
                                     .addOnSuccessListener {
                                         // Eliminar el placeholder si existe
                                         cuidadoresRef.document("placeholder").get()
@@ -112,11 +112,10 @@ class RegistroCuidador : AppCompatActivity() {
             }
         }
     }
-
-    private fun encriptarPassword(password: String): String {
-        val bytes = password.toByteArray()
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(bytes)
-        return hashBytes.joinToString("") { "%02x".format(it) }
+    private fun generarIdCuidador(): String {
+        val caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..5)
+            .map { caracteres.random() }
+            .joinToString("")
     }
 }

@@ -22,8 +22,11 @@ import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.example.appv1.cuidador.MainActivityCuidador;
 import com.example.appv1.logins.CuidadorLogin;
 import com.example.appv1.paciente.PacienteQR;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -52,42 +56,44 @@ public class MainActivity extends AppCompatActivity {
         Animation fadeInDelay = AnimationUtils.loadAnimation(this, R.anim.fade_in_delay);
 
         // Aplicar animaciones
-        imgPulsera.startAnimation(fadeIn);  // La pulsera aparece primero
-        imgfondo.startAnimation(fadeInDelay);  // El texto "SCI-BAND" aparece después
-        tvNombreLogo.startAnimation(fadeIn);  // El texto "SCI-BAND" aparece después
-        tvWelcome.startAnimation(fadeInDelay);  // El texto "Quien es usted?" aparece después
-        btnPaciente.startAnimation(fadeInDelay);  // El botón "Paciente" aparece después
-        btnCuidador.startAnimation(fadeInDelay);  // El botón "Trabajador" aparece después
+        imgPulsera.startAnimation(fadeIn);
+        imgfondo.startAnimation(fadeInDelay);
+        tvNombreLogo.startAnimation(fadeIn);
+        tvWelcome.startAnimation(fadeInDelay);
+        btnPaciente.startAnimation(fadeInDelay);
+        btnCuidador.startAnimation(fadeInDelay);
+        circleAnimationView.startAnimation(1500);
 
-        circleAnimationView.startAnimation(1500);  // Radio máximo del círculo
         new Handler().postDelayed(() -> {
-            mainLayout.setBackgroundColor(Color.WHITE);  // Cambiar el fondo a blanco
-            tvNombreLogo.setTextColor(Color.WHITE);  // Cambiar el texto a blanco
-        }, 2000);  // Retraso de 1.5 segundos
+            mainLayout.setBackgroundColor(Color.WHITE);
+            tvNombreLogo.setTextColor(Color.WHITE);
+        }, 2000);
 
-
-
-        //Se accede a la pantalla donde el paciente muestra el QR al cuidador
-        btnPaciente.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PacienteQR.class);
-                startActivity(intent);
-            }
+        // Botón para el paciente
+        btnPaciente.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, PacienteQR.class);
+            startActivity(intent);
         });
 
-        // Se accede a la pantalla donde el usuario ingresa sus cosas esas
-        btnCuidador.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CuidadorLogin.class);
-                startActivity(intent);
-            }
+        // Botón para el cuidador
+        btnCuidador.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CuidadorLogin.class);
+            startActivity(intent);
         });
-
-
-
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Verificar sesión de cuidador
+        String idCuidador = getSharedPreferences("cuidador_sesion", MODE_PRIVATE).getString("id_cuidador", null);
+        String idOrganizacion = getSharedPreferences("cuidador_sesion", MODE_PRIVATE).getString("id_organizacion", null);
 
+        if (idCuidador != null && idOrganizacion != null) {
+            // Si ya hay sesión, ir directamente al panel de cuidador
+            Intent intent = new Intent(MainActivity.this, MainActivityCuidador.class);
+            startActivity(intent);
+            finish();
+        }
+    }
 }

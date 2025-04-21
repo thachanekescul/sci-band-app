@@ -41,7 +41,7 @@ class ConfirmarDatosAdmin : AppCompatActivity() {
 
 
         val password = intent.getStringExtra("admin_password") ?: ""
-        val passwordEncriptado = encriptarPassword(password)
+
 
         // Mostrar todos los datos en un solo TextView
         val datosFinales = """
@@ -77,7 +77,7 @@ class ConfirmarDatosAdmin : AppCompatActivity() {
                 "nombre" to adminNombre,
                 "apellido" to adminApellido,
                 "celular" to adminCelular,
-                "password" to passwordEncriptado
+                "password" to password
 
             )
 
@@ -105,12 +105,13 @@ class ConfirmarDatosAdmin : AppCompatActivity() {
 
 
     }
-    private fun encriptarPassword(password: String): String {
-        val bytes = password.toByteArray()
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(bytes)
-        return hashBytes.joinToString("") { "%02x".format(it) }
-    }
+    //para encriptar, luego ponlo
+  //  private fun encriptarPassword(password: String): String {
+  //      val bytes = password.toByteArray()
+  //      val digest = java.security.MessageDigest.getInstance("SHA-256")
+  //      val hashBytes = digest.digest(bytes)
+  //      return hashBytes.joinToString("") { "%02x".format(it) }
+   // }
 
     private fun generarCodigoOrganizacion(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

@@ -51,22 +51,25 @@ class RegistroDePaciente : AppCompatActivity() {
         db.collection("codigos_espera").document(codigo).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    // Código válido → iniciar registro del paciente
-                    val intent = Intent(this@RegistroDePaciente , FormularioPaciente::class.java).apply{
-                    putExtra("codigo_qr", codigo)
-                    putExtra("codigo_org", orgCodigo)
-
-
-                    }
-                    startActivity(intent)
-
-
-                } else {
-                    Toast.makeText(this, "Código inválido o expirado", Toast.LENGTH_LONG).show()
+                    // Código válido → actualizar estado escaneado
+                    db.collection("codigos_espera").document(codigo)
+                        .update("escaneado", true)
+                        .addOnSuccessListener {
+                            // Después de marcar como escaneado, ir al formulario
+                            val intent = Intent(
+                                this@RegistroDePaciente,
+                                FormularioPaciente::class.java
+                            ).apply {
+                                putExtra("codigo_qr", codigo)
+                                putExtra("codigo_org", orgCodigo)
+                            }
+                            startActivity(intent)
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Error al actualizar código", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al verificar el código", Toast.LENGTH_SHORT).show()
             }
     }
 }

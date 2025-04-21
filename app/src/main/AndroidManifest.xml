@@ -27,6 +27,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="35">
         <activity
+            android:name=".cuidador.ConfiguracionCuidador"
+            android:exported="false" />
+        <activity
+            android:name=".paciente.BlueToothPaciente"
+            android:exported="false" />
+        <activity
             android:name=".cuidador.FormularioPaciente"
             android:exported="false" />
         <activity
@@ -61,8 +67,7 @@
             android:exported="false" />
         <activity
             android:name=".cuidador.RegistroDePaciente"
-            android:exported="false"
-         />
+            android:exported="false" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"

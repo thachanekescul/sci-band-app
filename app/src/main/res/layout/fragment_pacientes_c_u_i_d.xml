@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -15,25 +14,42 @@
         android:orientation="vertical"
         android:padding="15dp">
 
-        <!-- Nombre de la organización -->
-        <TextView
-            android:id="@+id/txtNombreOrganizacion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nombre de la Organización"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/main2"/>
+        <!-- Contenedor superior con ícono de configuración -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <!-- Detalles del perfil -->
+            <!-- Título de la organización -->
+            <TextView
+                android:id="@+id/txtNombreOrganizacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre de la Organización"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/main2"
+                android:layout_centerHorizontal="true" />
+
+            <!-- Ícono de configuración -->
+            <ImageView
+                android:id="@+id/imgConfig"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/baseline_settings_24"
+                />
+        </RelativeLayout>
+
         <TextView
-            android:id="@+id/txtDetallesPerfil"
+            android:id="@+id/txtNombreCuidador"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Detalles del perfil del cuidador"
             android:textSize="16sp"
             android:layout_marginTop="10dp"
-            android:textColor="@color/main2"/>
+            android:textColor="@color/main2"
+            android:layout_gravity="center" />
 
         <!-- Foto de perfil -->
         <ImageView
@@ -41,27 +57,26 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="10dp"
-            android:scaleType="centerCrop"/>
-
-
-        <!-- Botón de edición -->
-        <Button
-            android:id="@+id/btnEditarPerfil"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Editar Perfil"
-            android:layout_marginTop="15dp"
-            android:backgroundTint="@color/maint"/>
+            android:scaleType="centerCrop"
+            android:layout_gravity="center" />
 
         <!-- RecyclerView para pacientes -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPacientes"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
             android:layout_marginTop="20dp"
-            tools:listitem="@layout/item_paciente"/>
-
+            android:layout_weight="1"
+            tools:listitem="@layout/item_paciente" />
     </LinearLayout>
 
+    <!-- FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAgregarPaciente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/baseline_add_24"
+        app:backgroundTint="@color/maint" />
 </FrameLayout>
