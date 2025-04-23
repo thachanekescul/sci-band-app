@@ -47,27 +47,23 @@ class RegistroDePaciente : AppCompatActivity() {
     }
 
     private fun verificarCodigo(codigo: String) {
-        val orgCodigo = intent.getStringExtra("codigo_org") ?: ""
+        val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+        val orgCodigo = prefs.getString("id_organizacion", null) ?: ""
+
         db.collection("codigos_espera").document(codigo).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    // Código válido → actualizar estado escaneado
                     db.collection("codigos_espera").document(codigo)
                         .update("escaneado", true)
                         .addOnSuccessListener {
-                            // Después de marcar como escaneado, ir al formulario
                             val intent = Intent(
                                 this@RegistroDePaciente,
                                 FormularioPaciente::class.java
                             ).apply {
                                 putExtra("codigo_qr", codigo)
-                                putExtra("codigo_org", orgCodigo)
+                                // 👇 Ya no ponemos "codigo_org"
                             }
                             startActivity(intent)
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(this, "Error al actualizar código", Toast.LENGTH_SHORT)
-                                .show()
                         }
                 }
             }

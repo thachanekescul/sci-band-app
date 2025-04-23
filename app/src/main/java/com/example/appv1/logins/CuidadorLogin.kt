@@ -83,8 +83,6 @@ class CuidadorLogin : AppCompatActivity() {
                                 val cuidadorDoc = cuidadorSnapshots.documents[0]
                                 val idCuidador = cuidadorDoc.id
                                 val idOrganizacion = orgDoc.id
-
-                                // ✅ GUARDAR SESIÓN UNIFICADA
                                 val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
                                 prefs.edit()
                                     .putString("tipo_usuario", "cuidador")

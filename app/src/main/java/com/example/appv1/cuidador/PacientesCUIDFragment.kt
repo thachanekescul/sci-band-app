@@ -1,10 +1,14 @@
 package com.example.appv1.cuidador
 
 import android.content.Context
+import android.content.Intent
+import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.example.appv1.R;
@@ -23,7 +27,7 @@ class PacientesCUIDFragment : Fragment() {
     private lateinit var db: FirebaseFirestore
     private lateinit var txtNombreCuidador: TextView
     private lateinit var txtNombreOrganizacion: TextView
-
+    private lateinit var btnConfig: ImageView
     private val listaPacientes = mutableListOf<Paciente>()
 
     override fun onCreateView(
@@ -37,13 +41,13 @@ class PacientesCUIDFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         db = FirebaseFirestore.getInstance()
-
+        val fabAgregarPaciente = view.findViewById<View>(R.id.fabAgregarPaciente)
         recyclerView = view.findViewById(R.id.recyclerPacientes)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         txtNombreCuidador = view.findViewById(R.id.txtNombreCuidador)
         txtNombreOrganizacion = view.findViewById(R.id.txtNombreOrganizacion)
-
+        btnConfig=view.findViewById(R.id.imgConfig)
         adapter = PacienteAdapter(listaPacientes,
             onEditarClick = { paciente -> editarPaciente(paciente) },
             onMedirClick = { paciente -> medirPaciente(paciente) }
@@ -51,11 +55,22 @@ class PacientesCUIDFragment : Fragment() {
         recyclerView.adapter = adapter
 
         cargarDatosDelCuidador()
+
+
+        btnConfig.setOnClickListener {
+            val intent = Intent(requireContext(), ConfiguracionCuidador::class.java)
+            startActivity(intent)
+        }
+
+        fabAgregarPaciente.setOnClickListener {
+            val intent = Intent(requireContext(), RegistroDePaciente::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun cargarDatosDelCuidador() {
-        val prefs = requireActivity().getSharedPreferences("cuidador_sesion", Context.MODE_PRIVATE)
-        val idCuidador = prefs.getString("id_cuidador", null)
+        val prefs = requireActivity().getSharedPreferences("usuario_sesion", Context.MODE_PRIVATE)
+        val idCuidador = prefs.getString("id_usuario", null)
         val idOrganizacion = prefs.getString("id_organizacion", null)
 
         if (idCuidador == null || idOrganizacion == null) {

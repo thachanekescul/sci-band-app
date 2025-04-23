@@ -1,4 +1,5 @@
 package com.example.appv1;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -82,15 +83,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
-        // Verificar sesión de cuidador
-        String idCuidador = getSharedPreferences("cuidador_sesion", MODE_PRIVATE).getString("id_cuidador", null);
-        String idOrganizacion = getSharedPreferences("cuidador_sesion", MODE_PRIVATE).getString("id_organizacion", null);
+        SharedPreferences prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE);
+        String tipoUsuario = prefs.getString("tipo_usuario", null);
+        String idUsuario = prefs.getString("id_usuario", null);
+        String idOrganizacion = prefs.getString("id_organizacion", null);
 
-        if (idCuidador != null && idOrganizacion != null) {
-            // Si ya hay sesión, ir directamente al panel de cuidador
+        if ("cuidador".equals(tipoUsuario) && idUsuario != null && idOrganizacion != null) {
             Intent intent = new Intent(MainActivity.this, MainActivityCuidador.class);
             startActivity(intent);
             finish();

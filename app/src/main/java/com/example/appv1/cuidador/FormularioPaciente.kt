@@ -1,6 +1,7 @@
 package com.example.appv1.cuidador
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -35,15 +36,15 @@ class FormularioPaciente : AppCompatActivity() {
         spCondicion = findViewById(R.id.spCondicion)
         btnRegistro = findViewById(R.id.btnRegistro)
 
-        // Obtener código QR
+        // Obtener código QR desde el intent
         codigoQR = intent.getStringExtra("codigo_qr") ?: ""
 
-        // Spinner
+        // Configurar spinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, condiciones)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spCondicion.adapter = adapter
 
-        // DatePickerDialog
+        // Selector de fecha
         etFechaNacimiento.setOnClickListener {
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)
@@ -76,7 +77,9 @@ class FormularioPaciente : AppCompatActivity() {
                 "registrado" to true
             )
 
-            val orgCodigo = intent.getStringExtra("codigo_org") ?: ""
+            // ✅ Obtener código de organización desde SharedPreferences
+            val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+            val orgCodigo = prefs.getString("id_organizacion", null) ?: ""
 
             db.collection("organizacion")
                 .document(orgCodigo)
@@ -87,6 +90,7 @@ class FormularioPaciente : AppCompatActivity() {
                     db.collection("codigos_espera").document(codigoQR).delete()
 
                     Toast.makeText(this, "Paciente registrado exitosamente", Toast.LENGTH_LONG).show()
+                    startActivity(Intent(this, MainActivityCuidador::class.java))
                     finish()
                 }
                 .addOnFailureListener {

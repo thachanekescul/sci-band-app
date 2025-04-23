@@ -6,7 +6,7 @@
     android:padding="24dp"
     android:gravity="top|center_horizontal"
     android:background="@color/fondo_main"
-    tools:context=".paciente.BlueToothPaciente">
+    tools:context=".cuidador.ConfiguracionCuidador">
 
 
 

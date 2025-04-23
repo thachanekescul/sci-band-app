@@ -6,11 +6,12 @@ import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
+import com.example.appv1.cuidador.MainActivityCuidador
 import com.example.appv1.cuidador.RegistroDePaciente
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 class RegistroCuidador : AppCompatActivity() {
 
@@ -79,24 +80,40 @@ class RegistroCuidador : AppCompatActivity() {
                                     "cel" to celular
                                 )
 
-
-
-
                                 cuidadoresRef.document(idCuidador).set(datos)
                                     .addOnSuccessListener {
-                                        // Eliminar el placeholder si existe
+                                        // Eliminar placeholder si existe
                                         cuidadoresRef.document("placeholder").get()
                                             .addOnSuccessListener { doc ->
                                                 if (doc.exists()) {
                                                     cuidadoresRef.document("placeholder").delete()
                                                 }
                                             }
-                                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                                        val intent = Intent(this@RegistroCuidador, RegistroDePaciente::class.java).apply{
-                                            putExtra("codigo_org", orgCodigo)
-                                        }
 
-                                        startActivity(intent)
+                                        // ✅ GUARDAR SESIÓN
+                                        val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+                                        prefs.edit()
+                                            .putString("tipo_usuario", "cuidador")
+                                            .putString("id_usuario", idCuidador)
+                                            .putString("id_organizacion", orgCodigo)
+                                            .apply()
+
+                                        // ✅ DIALOGO CON OPCIONES
+                                        AlertDialog.Builder(this)
+                                            .setTitle("Registro exitoso")
+                                            .setMessage("¿Desea registrar su primer paciente ahora o continuar en la app?")
+                                            .setPositiveButton("Registrar paciente") { _, _ ->
+                                                val intent = Intent(this, RegistroDePaciente::class.java)
+                                                startActivity(intent)
+                                                finish()
+                                            }
+                                            .setNegativeButton("Continuar en la app") { _, _ ->
+                                                val intent = Intent(this, MainActivityCuidador::class.java)
+                                                startActivity(intent)
+                                                finish()
+                                            }
+                                            .setCancelable(false)
+                                            .show()
                                     }
                                     .addOnFailureListener {
                                         Toast.makeText(this, "Error al registrar", Toast.LENGTH_SHORT).show()
@@ -112,6 +129,7 @@ class RegistroCuidador : AppCompatActivity() {
             }
         }
     }
+
     private fun generarIdCuidador(): String {
         val caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..5)
