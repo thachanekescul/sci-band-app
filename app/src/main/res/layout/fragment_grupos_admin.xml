@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_main">
+
+    <!-- Contenedor superior con el nombre de la organización y la imagen de configuración -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <!-- Nombre de la organización -->
+        <TextView
+            android:id="@+id/txtNombreOrganizacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Organización"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/main2"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="65dp"/>
+
+        <!-- Imagen de configuración a la derecha del nombre de la organización -->
+        <ImageView
+            android:id="@+id/imgConfigAdmin"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/baseline_settings_24"
+        android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <!-- Nombre del administrador -->
+    <TextView
+        android:id="@+id/txtNombreAdmin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre del Admin"
+        android:textSize="18sp"
+        android:textColor="@color/main2"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center" />
+
+    <!-- Código de la organización -->
+    <TextView
+        android:id="@+id/txtCodigoOrganizacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Código Organización"
+        android:textSize="16sp"
+        android:textColor="@color/main2"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center" />
+
+    <!-- Foto de perfil del administrador -->
+    <ImageView
+        android:id="@+id/imgFotoAdmin"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center"
+        android:src="@drawable/admin"
+        android:background="@drawable/img_circular"
+        android:clipToOutline="true" />
+
+    <!-- Horizontal Scroll View para los Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fillViewport="true">
+
+        <!-- ChipGroup para los cuidadores -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:chipSpacing="8dp"
+            app:selectionRequired="false"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <!-- RecyclerView para mostrar cuidador + pacientes -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"/>
+
+</LinearLayout>

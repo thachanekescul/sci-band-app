@@ -105,13 +105,7 @@ class ConfirmarDatosAdmin : AppCompatActivity() {
 
 
     }
-    //para encriptar, luego ponlo
-  //  private fun encriptarPassword(password: String): String {
-  //      val bytes = password.toByteArray()
-  //      val digest = java.security.MessageDigest.getInstance("SHA-256")
-  //      val hashBytes = digest.digest(bytes)
-  //      return hashBytes.joinToString("") { "%02x".format(it) }
-   // }
+
 
     private fun generarCodigoOrganizacion(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

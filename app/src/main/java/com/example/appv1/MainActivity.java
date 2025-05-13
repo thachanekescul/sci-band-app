@@ -23,6 +23,7 @@ import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.example.appv1.admin.MainAdministrador;
 import com.example.appv1.cuidador.MainActivityCuidador;
 import com.example.appv1.logins.CuidadorLogin;
 import com.example.appv1.paciente.PacienteQR;
@@ -94,6 +95,12 @@ public class MainActivity extends AppCompatActivity {
 
         if ("cuidador".equals(tipoUsuario) && idUsuario != null && idOrganizacion != null) {
             Intent intent = new Intent(MainActivity.this, MainActivityCuidador.class);
+            startActivity(intent);
+            finish();
+        }
+
+        if ("admin".equals(tipoUsuario) && idUsuario != null && idOrganizacion != null) {
+            Intent intent = new Intent(MainActivity.this, MainAdministrador.class);
             startActivity(intent);
             finish();
         }

@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import com.example.appv1.cuidador.MainActivityCuidador
+import com.example.appv1.recuperar.RecuperarContrasena
 import com.example.appv1.registro.RegistroCuidador
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -22,7 +23,7 @@ class CuidadorLogin : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var btnaccesoadmin: Button
     private lateinit var tvRegistrar: TextView
-
+    private lateinit var tvrecuperar: TextView
     private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,7 @@ class CuidadorLogin : AppCompatActivity() {
         setContentView(R.layout.activity_cuidador_login)
 
         db = FirebaseFirestore.getInstance()
-
+        tvrecuperar= findViewById(R.id.tvForgotPassword)
         tvRegistrar = findViewById(R.id.tvRegistrar)
         etEmail = findViewById(R.id.etEmail)
         etPass = findViewById(R.id.etPass)
@@ -55,6 +56,10 @@ class CuidadorLogin : AppCompatActivity() {
         btnaccesoadmin.setOnClickListener {
             startActivity(Intent(this, AdminLogin::class.java))
         }
+        tvrecuperar.setOnClickListener {
+            startActivity(Intent(this, RecuperarContrasena::class.java))
+        }
+
     }
 
     private fun loginCuidador(email: String, password: String) {

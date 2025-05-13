@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="top|center_horizontal"
+    android:background="@color/fondo_main"
+    tools:context=".admin.ConfiguracionAdmin">
+
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnEditarInfo"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/button_background_3"
+        android:text="Editar informacion"
+        android:drawableEnd="@drawable/baseline_navigate_next_24"
+        android:layout_marginBottom="10dp"
+        android:padding="10dp"/>
+
+
+
+    <!-- Segundo botón -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnCerrarSesion"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_background_4"
+        android:text="Cerrar Sesión"
+        android:textColor="@color/main2"/>
+
+    <!-- Tercer botón -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnEliminarCuenta"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/button_background_4"
+        android:text="Eliminar Cuenta"
+        android:textColor="#FF0000"
+        android:drawableEnd="@drawable/baseline_delete_24"
+        android:padding="10dp"
+        />
+</LinearLayout>
+

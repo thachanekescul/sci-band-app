@@ -1,5 +1,6 @@
-package com.example.appv1.cuidador
+package com.example.appv1.admin
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
@@ -9,7 +10,7 @@ import com.example.appv1.R
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
-class EditarPacienteCuid : AppCompatActivity() {
+class EditarPacienteAdmin : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var etNombre: EditText
@@ -18,16 +19,18 @@ class EditarPacienteCuid : AppCompatActivity() {
     private lateinit var etFechaNacimiento: EditText
     private lateinit var spCondicion: Spinner
     private lateinit var btnGuardar: Button
+    private lateinit var btnEliminar: Button
 
     private lateinit var pacienteId: String
     private lateinit var cuidadorId: String
     private lateinit var organizacionId: String
+    private lateinit var adminId: String
 
     private val condiciones = arrayOf("Ninguna", "Diabetes", "Hipertensión", "Cáncer", "Obesidad", "Otro")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_editar_paciente_cuid)
+        setContentView(R.layout.activity_editar_paciente_admin)
 
         db = FirebaseFirestore.getInstance()
 
@@ -37,18 +40,11 @@ class EditarPacienteCuid : AppCompatActivity() {
         etFechaNacimiento = findViewById(R.id.etFechaNacimiento)
         spCondicion = findViewById(R.id.spCondicion)
         btnGuardar = findViewById(R.id.btnGuardar)
+        btnEliminar = findViewById(R.id.btnEliminar)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, condiciones)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spCondicion.adapter = adapter
-
-        val prefs = getSharedPreferences("usuario_sesion", Context.MODE_PRIVATE)
-        cuidadorId = prefs.getString("id_usuario", "")!!
-        organizacionId = prefs.getString("id_organizacion", "")!!
-
-        pacienteId = intent.getStringExtra("idPaciente") ?: ""
-
-        cargarDatosPaciente()
 
         etFechaNacimiento.setOnClickListener {
             val c = Calendar.getInstance()
@@ -61,8 +57,22 @@ class EditarPacienteCuid : AppCompatActivity() {
             }, year, month, day).show()
         }
 
+        // Recibir ambos IDs
+        pacienteId = intent.getStringExtra("idPaciente") ?: ""
+        cuidadorId = intent.getStringExtra("idCuidador") ?: ""
+
+        val prefs = getSharedPreferences("usuario_sesion", Context.MODE_PRIVATE)
+        organizacionId = prefs.getString("id_organizacion", "")!!
+        adminId = prefs.getString("id_usuario", "")!!
+
+        cargarDatosPaciente()
+
         btnGuardar.setOnClickListener {
             guardarCambios()
+        }
+
+        btnEliminar.setOnClickListener {
+            mostrarDialogoConfirmacion()
         }
     }
 
@@ -76,10 +86,11 @@ class EditarPacienteCuid : AppCompatActivity() {
 
         pacienteRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                etNombre.setText(document.getString("nombre"))
-                etApellido.setText(document.getString("apellido"))
-                etCelular.setText(document.getString("celular"))
-                etFechaNacimiento.setText(document.getString("fecha_nacimiento"))
+                etNombre.setText(document.getString("nombre") ?: "")
+                etApellido.setText(document.getString("apellido") ?: "")
+                val celular = document.get("celular")?.toString() ?: ""
+                etCelular.setText(celular)
+                etFechaNacimiento.setText(document.getString("fecha_nacimiento") ?: "")
 
                 val condicion = document.getString("condicion_cronica") ?: "Ninguna"
                 val index = condiciones.indexOf(condicion)
@@ -88,7 +99,7 @@ class EditarPacienteCuid : AppCompatActivity() {
                 }
             }
         }.addOnFailureListener {
-            Toast.makeText(this, "Error al cargar datos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Error al cargar datos del paciente", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -127,4 +138,61 @@ class EditarPacienteCuid : AppCompatActivity() {
         }
     }
 
+    private fun mostrarDialogoConfirmacion() {
+        val editText = EditText(this)
+        editText.hint = "Contraseña"
+        editText.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+        AlertDialog.Builder(this)
+            .setTitle("Confirmar Eliminación")
+            .setMessage("Ingrese su contraseña para eliminar este paciente.")
+            .setView(editText)
+            .setPositiveButton("Eliminar") { dialog, _ ->
+                val passwordIngresada = editText.text.toString().trim()
+                verificarPassword(passwordIngresada)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun verificarPassword(passwordIngresada: String) {
+        db.collection("organizacion")
+            .document(organizacionId)
+            .collection("admin")
+            .document(adminId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val passwordReal = document.getString("password") ?: ""
+                    if (passwordIngresada == passwordReal) {
+                        eliminarPaciente()
+                    } else {
+                        Toast.makeText(this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al verificar contraseña", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun eliminarPaciente() {
+        db.collection("organizacion")
+            .document(organizacionId)
+            .collection("cuidadores")
+            .document(cuidadorId)
+            .collection("pacientes")
+            .document(pacienteId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Paciente eliminado exitosamente", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al eliminar paciente", Toast.LENGTH_SHORT).show()
+            }
+    }
 }

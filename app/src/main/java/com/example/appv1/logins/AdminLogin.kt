@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import com.example.appv1.admin.HomeAdmin
+import com.example.appv1.admin.MainAdministrador
 import com.example.appv1.logins.CuidadorLogin
 import com.example.appv1.registro.RegistroDeLaOrg
 import com.google.firebase.firestore.FirebaseFirestore
@@ -85,7 +86,7 @@ class AdminLogin : AppCompatActivity() {
                                     .apply()
 
                                 Toast.makeText(this, "Bienvenido, $email", Toast.LENGTH_SHORT).show()
-                                startActivity(Intent(this, HomeAdmin::class.java))
+                                startActivity(Intent(this, MainAdministrador::class.java))
                                 finish()
                             }
 

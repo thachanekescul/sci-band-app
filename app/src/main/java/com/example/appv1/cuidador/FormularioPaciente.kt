@@ -80,9 +80,12 @@ class FormularioPaciente : AppCompatActivity() {
             // ✅ Obtener código de organización desde SharedPreferences
             val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
             val orgCodigo = prefs.getString("id_organizacion", null) ?: ""
+            val idCuidador = prefs.getString("id_usuario", null) ?: ""
 
             db.collection("organizacion")
                 .document(orgCodigo)
+                .collection("cuidadores") // 🔥 YA BIEN
+                .document(idCuidador)
                 .collection("pacientes")
                 .document(codigoQR)
                 .set(pacienteData)

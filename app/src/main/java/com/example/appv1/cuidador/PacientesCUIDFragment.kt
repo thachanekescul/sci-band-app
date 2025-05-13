@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.appv1.Adapters.PacienteAdapter.PacienteAdapter;
 import com.example.appv1.Adapters.PacienteAdapter.Paciente;
+import com.example.appv1.medicion.MedicionTiempoReal
 import com.google.firebase.firestore.DocumentReference
 
 class PacientesCUIDFragment : Fragment() {
@@ -121,11 +122,14 @@ class PacientesCUIDFragment : Fragment() {
 
     private fun editarPaciente(paciente: Paciente) {
         Toast.makeText(requireContext(), "Editar: ${paciente.nombre}", Toast.LENGTH_SHORT).show()
-        // Aquí iría tu lógica para abrir modal o activity
+        val intent = Intent(requireContext(), EditarPacienteCuid::class.java)
+        intent.putExtra("idPaciente", paciente.id)
+        startActivity(intent)
     }
 
     private fun medirPaciente(paciente: Paciente) {
-        Toast.makeText(requireContext(), "Medir: ${paciente.nombre}", Toast.LENGTH_SHORT).show()
-        // Aquí iría la lógica para graficar o leer datos
+        val intent = Intent(requireContext(), MedicionTiempoReal::class.java)
+        intent.putExtra("idPaciente", paciente.id)
+        startActivity(intent)
     }
 }

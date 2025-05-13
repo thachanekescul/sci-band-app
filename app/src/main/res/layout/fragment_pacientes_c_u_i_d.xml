@@ -58,7 +58,10 @@
             android:layout_height="100dp"
             android:layout_marginTop="10dp"
             android:scaleType="centerCrop"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:src="@drawable/images"
+            android:background="@drawable/img_circular"
+            android:clipToOutline="true"/>
 
         <!-- RecyclerView para pacientes -->
         <androidx.recyclerview.widget.RecyclerView

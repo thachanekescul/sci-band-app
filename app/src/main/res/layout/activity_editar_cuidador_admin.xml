@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fondo_main"
-    tools:context=".cuidador.EditarPacienteCuid">
+    tools:context=".cuidador.EditarInfoCuid">
 
 
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:gravity="center"
-            android:text="Edite los datos de su paciente"
+            android:text="Edite sus datos personales"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -85,30 +85,22 @@
             android:textColorHint="@color/white" />
 
         <EditText
-            android:id="@+id/etFechaNacimiento"
+            android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/edittext_background"
-            android:focusable="false"
-            android:clickable="true"
+
             android:drawablePadding="12dp"
-            android:hint="fecha de nacimiento"
+            android:hint="Email"
             android:inputType="phone"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white" />
-        <Spinner
-            android:id="@+id/spCondicion"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/edittext_background"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:spinnerMode="dropdown"
-            />
+
+
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnGuardar"
@@ -118,6 +110,21 @@
             android:text="Guardar cambios"
             android:textColor="@color/fondo_main"
             android:textSize="18sp" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnEliminar"
+            android:layout_width="269dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/button_background_4"
+            android:text="Eliminar usuario"
+            android:textColor="#FF0000"
+            android:drawableEnd="@drawable/baseline_delete_24"
+            android:padding="10dp"
+            android:textSize="18sp" />
+
+
 
     </LinearLayout>
 

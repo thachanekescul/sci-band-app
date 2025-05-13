@@ -15,16 +15,27 @@
         android:orientation="vertical"
         android:padding="15dp">
 
-        <!-- Nombre de la organización -->
 
-        <!-- Detalles del perfil -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:layout_width="379dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:chipSpacing="8dp"
+            app:singleSelection="true">
 
-        <!-- Foto de perfil -->
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Todo"
+                app:chipBackgroundColor="@color/white"
+                />
 
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Shorts" />
 
-        <!-- Botón de edición -->
-
-        <!-- RecyclerView para pacientes -->
+            <!-- Agrega más chips -->
+        </com.google.android.material.chip.ChipGroup>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPacientes"
             android:layout_width="match_parent"

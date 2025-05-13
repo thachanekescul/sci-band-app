@@ -27,6 +27,33 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="35">
         <activity
+            android:name=".admin.EditarEmpresaAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".admin.EditarInfoAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".admin.ConfiguracionAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".medicion.MedicionTiempoReal"
+            android:exported="false" />
+        <activity
+            android:name=".admin.EditarCuidadorAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".admin.EditarPacienteAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".ActividadPrueba"
+            android:exported="false" />
+        <activity
+            android:name=".recuperar.CambiarContrasena"
+            android:exported="false" />
+        <activity
+            android:name=".recuperar.RecuperarContrasena"
+            android:exported="false" />
+        <activity
             android:name=".cuidador.ConfiguracionCuidador"
             android:exported="false" />
         <activity

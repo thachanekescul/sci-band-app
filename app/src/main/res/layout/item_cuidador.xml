@@ -1,63 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="10dp"
-    android:background="@android:color/white">
+    android:padding="12dp"
+    android:background="@color/zxing_transparent"
+    android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="5dp"
-        android:padding="10dp"
-        >
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_background">
+            android:background="@drawable/rounded_background"
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <!-- Imagen del cuidador -->
                 <ImageView
                     android:id="@+id/imgCuidador"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
+                    android:layout_marginEnd="16dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ypc0fpvf53ae1"
-                    android:layout_marginEnd="10dp"
-                    />
+                    android:background="@drawable/img_circular"
+                    android:clipToOutline="true"
+                    android:src="@drawable/ypc0fpvf53ae1" />
 
-                <!-- Nombre del cuidador -->
                 <TextView
                     android:id="@+id/txtNombreCuidador"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Nombre del Cuidador"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
+                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Botón Editar -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnEditarCuidador"
-                android:layout_width="370dp"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
                 android:text="Editar"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/maint"/>
+                android:textColor="@color/white"
+                android:backgroundTint="@color/maint"
+                android:background="@drawable/button_background"
+                android:elevation="4dp"/>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
 </LinearLayout>
+

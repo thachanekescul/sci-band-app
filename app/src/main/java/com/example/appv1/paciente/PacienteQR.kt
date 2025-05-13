@@ -60,7 +60,7 @@ class PacienteQR : AppCompatActivity() {
     }
 
     private fun irAPermisoBluetooth() {
-        val intent = Intent(this, BlueToothPaciente::class.java)
+        val intent = Intent(this, HomePaciente::class.java)
         startActivity(intent)
         finish()
     }

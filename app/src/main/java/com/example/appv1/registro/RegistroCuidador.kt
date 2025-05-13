@@ -66,7 +66,7 @@ class RegistroCuidador : AppCompatActivity() {
                     val idCuidador = generarIdCuidador()
                     val cuidadoresRef = orgRef.collection("cuidadores")
 
-                    // Validar si el email ya está registrado
+
                     cuidadoresRef.whereEqualTo("email", email).get()
                         .addOnSuccessListener { snapshot ->
                             if (!snapshot.isEmpty) {
@@ -90,7 +90,7 @@ class RegistroCuidador : AppCompatActivity() {
                                                 }
                                             }
 
-                                        // ✅ GUARDAR SESIÓN
+
                                         val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
                                         prefs.edit()
                                             .putString("tipo_usuario", "cuidador")
@@ -98,7 +98,7 @@ class RegistroCuidador : AppCompatActivity() {
                                             .putString("id_organizacion", orgCodigo)
                                             .apply()
 
-                                        // ✅ DIALOGO CON OPCIONES
+
                                         AlertDialog.Builder(this)
                                             .setTitle("Registro exitoso")
                                             .setMessage("¿Desea registrar su primer paciente ahora o continuar en la app?")

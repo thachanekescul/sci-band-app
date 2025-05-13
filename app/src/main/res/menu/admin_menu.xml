@@ -8,8 +8,6 @@
         android:icon="@drawable/ic_nav_main"
         app:showAsAction="ifRoom"/>
 
-
-
     <item
         android:id="@+id/nav_historial"
         android:title="Historial"
@@ -17,7 +15,7 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/nav_pacientes"
+        android:id="@+id/nav_grupos"
         android:title="Empresa"
         android:icon="@drawable/ic_nav_grup"
         app:showAsAction="ifRoom"/>
