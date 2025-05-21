@@ -45,20 +45,21 @@ class ConfirmarDatosAdmin : AppCompatActivity() {
 
         // Mostrar todos los datos en un solo TextView
         val datosFinales = """
-            🚨 DATOS DE LA ORGANIZACIÓN 🚨
+            DATOS DE LA ORGANIZACIÓN
             
-            ✅ Nombre: $nombreOrg
-            📍 Dirección: $direccion
-            📞 Celular: $celularOrg
-            📆 Fundación: $fechaFundacion
+            Nombre: $nombreOrg
+            Dirección: $direccion
+            Celular: $celularOrg
+            Fundación: $fechaFundacion
 
-            👤 ADMINISTRADOR RESPONSABLE 👤
-            📧 Email: $adminEmail
-            🧑 Nombre: $adminNombre $adminApellido
-            📱 Celular: $adminCelular
+            ADMINISTRADOR RESPONSABLE
+            Email: $adminEmail
+            Nombre: $adminNombre $adminApellido
+            Celular: $adminCelular
 
-            🔐 Código de la organización: $codigoOrg
-        """.trimIndent()
+            Código de la organización: $codigoOrg
+            Guarde este codigo que es importrante
+                    """.trimIndent()
 
         tvDatosCompletos.text = datosFinales
 

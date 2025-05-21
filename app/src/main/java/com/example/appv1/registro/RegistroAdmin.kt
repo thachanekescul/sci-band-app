@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import java.util.*
 import com.example.appv1.registro.ConfirmarDatosAdmin
-class RegistroAdmin : AppCompatActivity() {
+import com.google.firebase.firestore.FirebaseFirestore
 
+class RegistroAdmin : AppCompatActivity() {
+    private lateinit var db: FirebaseFirestore
     private lateinit var etEmail: EditText
     private lateinit var etPass: EditText
     private lateinit var etConfirmar: EditText
@@ -27,7 +29,7 @@ class RegistroAdmin : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro_admin)
-
+        db = FirebaseFirestore.getInstance()
         // Obtener datos de la organización
         nombreOrg = intent.getStringExtra("nombre_org") ?: ""
         direccionOrg = intent.getStringExtra("direccion") ?: ""
@@ -53,7 +55,8 @@ class RegistroAdmin : AppCompatActivity() {
 
             // Validaciones
             if (email.isEmpty() || pass.isEmpty() || confirmar.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || celular.isEmpty()) {
-                Toast.makeText(this, "Por favor, completa todos los campos.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, completa todos los campos.", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
 
@@ -68,26 +71,50 @@ class RegistroAdmin : AppCompatActivity() {
             }
 
 
+            val organizacionesRef = db.collection("organizacion")
 
-            // Pasar todo a la siguiente actividad de confirmación
-            val intent = Intent(this@RegistroAdmin, ConfirmarDatosAdmin::class.java).apply {
-                putExtra("nombre_org", nombreOrg)
-                putExtra("direccion", direccionOrg)
-                putExtra("celular", celularOrg)
-                putExtra("fecha_fundacion", fechaFundacion)
-
-                putExtra("admin_email", email)
-                putExtra("admin_nombre", nombre)
-                putExtra("admin_apellido", apellido)
-                putExtra("admin_celular", celular)
-                putExtra("admin_password", pass)
+            organizacionesRef.get()
+                .addOnSuccessListener { orgSnapshots ->
+                    var encontrado = false
+                    var consultasPendientes = orgSnapshots.size()
 
 
-            }
+                    for (orgDoc in orgSnapshots) {
+                        val adminRef = orgDoc.reference.collection("administradores")
 
-            startActivity(intent)
+                        adminRef.whereEqualTo("email", email)
+                            .get()
+                            .addOnSuccessListener { adminSnapshots ->
+                                if (!adminSnapshots.isEmpty && !encontrado) {
+                                    Toast.makeText(this, "El correo ya existe", Toast.LENGTH_SHORT)
+                                        .show()
+
+                                } else {
+                                    val intent = Intent(
+                                        this@RegistroAdmin,
+                                        ConfirmarDatosAdmin::class.java
+                                    ).apply {
+                                        putExtra("nombre_org", nombreOrg)
+                                        putExtra("direccion", direccionOrg)
+                                        putExtra("celular", celularOrg)
+                                        putExtra("fecha_fundacion", fechaFundacion)
+
+                                        putExtra("admin_email", email)
+                                        putExtra("admin_nombre", nombre)
+                                        putExtra("admin_apellido", apellido)
+                                        putExtra("admin_celular", celular)
+                                        putExtra("admin_password", pass)
+
+
+                                    }
+
+                                    startActivity(intent)
+                                }
+                            }
+                    }
+
+
+                }
         }
     }
-
-
 }

@@ -32,4 +32,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvCodigo" />
 
+
+    <EditText
+        android:id="@+id/etCodigoPaciente"
+        android:layout_width="363dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="116dp"
+        android:background="@drawable/edittext_background"
+        android:backgroundTint="@color/white"
+        android:hint="Ingresa tu código de paciente"
+        android:inputType="number"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivQRCode" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnIngresarPaciente"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_background"
+        android:text="Ingresar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etCodigoPaciente"
+        app:layout_constraintVertical_bias="0.194"
+        android:textColor="@color/subcolor"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/btnIngresarPaciente"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

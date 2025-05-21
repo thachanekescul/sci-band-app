@@ -1,12 +1,12 @@
 package com.example.appv1.paciente
+
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
-import com.example.appv1.paciente.BlueToothPaciente
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.zxing.BarcodeFormat
@@ -17,7 +17,11 @@ class PacienteQR : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var ivQRCode: ImageView
     private lateinit var tvCodigo: TextView
+    private lateinit var etCodigoPaciente: EditText
+    private lateinit var btnIngresarPaciente: Button
+    private lateinit var progressBar: ProgressBar
     private var listener: ListenerRegistration? = null
+    private var codigoGenerado: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,9 +30,13 @@ class PacienteQR : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
         ivQRCode = findViewById(R.id.ivQRCode)
         tvCodigo = findViewById(R.id.tvCodigo)
+        etCodigoPaciente = findViewById(R.id.etCodigoPaciente)
+        btnIngresarPaciente = findViewById(R.id.btnIngresarPaciente)
+        progressBar = findViewById(R.id.progressBar)
 
-        val codigo = (100000..999999).random().toString()
-        tvCodigo.text = "Código: $codigo"
+        // Generar código aleatorio de 6 dígitos
+        codigoGenerado = (100000..999999).random().toString()
+        tvCodigo.text = "Código: $codigoGenerado"
 
         val qrData = hashMapOf(
             "generado_por" to "paciente_sin_registro",
@@ -36,20 +44,20 @@ class PacienteQR : AppCompatActivity() {
             "escaneado" to false
         )
 
-        db.collection("codigos_espera").document(codigo)
+        // Guardar QR en Firestore
+        db.collection("codigos_espera").document(codigoGenerado!!)
             .set(qrData)
             .addOnSuccessListener {
-                val bitmap = generarQRBitmap(codigo)
+                val bitmap = generarQRBitmap(codigoGenerado!!)
                 ivQRCode.setImageBitmap(bitmap)
 
-                // Escuchar cambios del documento
-                listener = db.collection("codigos_espera").document(codigo)
+                // Escuchar si fue escaneado
+                listener = db.collection("codigos_espera").document(codigoGenerado!!)
                     .addSnapshotListener { snapshot, error ->
                         if (error != null || snapshot == null) return@addSnapshotListener
-
                         val escaneado = snapshot.getBoolean("escaneado") ?: false
                         if (escaneado) {
-                            listener?.remove() // Detener la escucha
+                            listener?.remove()
                             irAPermisoBluetooth()
                         }
                     }
@@ -57,6 +65,66 @@ class PacienteQR : AppCompatActivity() {
             .addOnFailureListener {
                 tvCodigo.text = "Error al generar código"
             }
+
+        // Lógica del botón de "Ingresar"
+        btnIngresarPaciente.setOnClickListener {
+            val codigoIngresado = etCodigoPaciente.text.toString().trim()
+            if (codigoIngresado.isEmpty()) {
+                etCodigoPaciente.error = "Ingresa tu código"
+                return@setOnClickListener
+            }
+
+            progressBar.visibility = View.VISIBLE
+
+            db.collection("organizacion").get()
+                .addOnSuccessListener { organizaciones ->
+                    var encontrado = false
+
+                    for (org in organizaciones) {
+                        val idOrg = org.id
+                        db.collection("organizacion").document(idOrg)
+                            .collection("cuidadores").get()
+                            .addOnSuccessListener { cuidadores ->
+                                for (cuidador in cuidadores) {
+                                    val idCuidador = cuidador.id
+                                    db.collection("organizacion").document(idOrg)
+                                        .collection("cuidadores").document(idCuidador)
+                                        .collection("pacientes").document(codigoIngresado)
+                                        .get()
+                                        .addOnSuccessListener { docPaciente ->
+                                            if (docPaciente.exists()) {
+
+                                                val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+                                                prefs.edit()
+                                                    .putString("tipo_usuario", "paciente")
+                                                    .putString("id_usuario", codigoIngresado)
+                                                    .putString("id_organizacion", idOrg)
+                                                    .apply()
+
+
+                                                codigoGenerado?.let {
+                                                    db.collection("codigos_espera").document(it).delete()
+                                                }
+
+                                                progressBar.visibility = View.GONE
+                                                irAPermisoBluetooth()
+                                                encontrado = true
+                                            }
+                                        }
+                                }
+                            }
+                    }
+
+                    if (encontrado == false) {
+                        progressBar.visibility = View.GONE
+                        etCodigoPaciente.error = "No se encontró el paciente"
+                    }
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    etCodigoPaciente.error = "Error al buscar paciente"
+                }
+        }
     }
 
     private fun irAPermisoBluetooth() {
@@ -81,6 +149,9 @@ class PacienteQR : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        listener?.remove() // Limpiar listener al destruir
+        listener?.remove()
+        codigoGenerado?.let {
+            db.collection("codigos_espera").document(it).delete()
+        }
     }
 }

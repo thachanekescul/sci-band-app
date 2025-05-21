@@ -67,61 +67,72 @@ class RegistroCuidador : AppCompatActivity() {
                     val cuidadoresRef = orgRef.collection("cuidadores")
 
 
+                    // Primero verificar en administradores
                     cuidadoresRef.whereEqualTo("email", email).get()
-                        .addOnSuccessListener { snapshot ->
-                            if (!snapshot.isEmpty) {
-                                Toast.makeText(this, "El correo ya está registrado", Toast.LENGTH_SHORT).show()
+                        .addOnSuccessListener { adminSnapshot ->
+                            if (!adminSnapshot.isEmpty) {
+                                Toast.makeText(this, "El correo ya está registrado como administrador", Toast.LENGTH_SHORT).show()
                             } else {
-                                val datos = hashMapOf(
-                                    "email" to email,
-                                    "password" to pass,
-                                    "nombre" to nombre,
-                                    "ape" to apellido,
-                                    "cel" to celular
-                                )
+                                // Verificar en cuidadores
+                                cuidadoresRef.whereEqualTo("email", email).get()
+                                    .addOnSuccessListener { cuidadorSnapshot ->
+                                        if (!cuidadorSnapshot.isEmpty) {
+                                            Toast.makeText(this, "El correo ya está registrado como cuidador", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            // Registrar cuidador
+                                            val datos = hashMapOf(
+                                                "email" to email,
+                                                "password" to pass,
+                                                "nombre" to nombre,
+                                                "ape" to apellido,
+                                                "cel" to celular
+                                            )
 
-                                cuidadoresRef.document(idCuidador).set(datos)
-                                    .addOnSuccessListener {
-                                        // Eliminar placeholder si existe
-                                        cuidadoresRef.document("placeholder").get()
-                                            .addOnSuccessListener { doc ->
-                                                if (doc.exists()) {
-                                                    cuidadoresRef.document("placeholder").delete()
+                                            cuidadoresRef.document(idCuidador).set(datos)
+                                                .addOnSuccessListener {
+                                                    // Eliminar placeholder si existe
+                                                    cuidadoresRef.document("placeholder").get()
+                                                        .addOnSuccessListener { doc ->
+                                                            if (doc.exists()) {
+                                                                cuidadoresRef.document("placeholder").delete()
+                                                            }
+                                                        }
+
+                                                    val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+                                                    prefs.edit()
+                                                        .putString("tipo_usuario", "cuidador")
+                                                        .putString("id_usuario", idCuidador)
+                                                        .putString("id_organizacion", orgCodigo)
+                                                        .apply()
+
+                                                    AlertDialog.Builder(this)
+                                                        .setTitle("Registro exitoso")
+                                                        .setMessage("¿Desea registrar su primer paciente ahora o continuar en la app?")
+                                                        .setPositiveButton("Registrar paciente") { _, _ ->
+                                                            val intent = Intent(this, RegistroDePaciente::class.java)
+                                                            startActivity(intent)
+                                                            finish()
+                                                        }
+                                                        .setNegativeButton("Continuar en la app") { _, _ ->
+                                                            val intent = Intent(this, MainActivityCuidador::class.java)
+                                                            startActivity(intent)
+                                                            finish()
+                                                        }
+                                                        .setCancelable(false)
+                                                        .show()
                                                 }
-                                            }
-
-
-                                        val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
-                                        prefs.edit()
-                                            .putString("tipo_usuario", "cuidador")
-                                            .putString("id_usuario", idCuidador)
-                                            .putString("id_organizacion", orgCodigo)
-                                            .apply()
-
-
-                                        AlertDialog.Builder(this)
-                                            .setTitle("Registro exitoso")
-                                            .setMessage("¿Desea registrar su primer paciente ahora o continuar en la app?")
-                                            .setPositiveButton("Registrar paciente") { _, _ ->
-                                                val intent = Intent(this, RegistroDePaciente::class.java)
-                                                startActivity(intent)
-                                                finish()
-                                            }
-                                            .setNegativeButton("Continuar en la app") { _, _ ->
-                                                val intent = Intent(this, MainActivityCuidador::class.java)
-                                                startActivity(intent)
-                                                finish()
-                                            }
-                                            .setCancelable(false)
-                                            .show()
+                                                .addOnFailureListener {
+                                                    Toast.makeText(this, "Error al registrar", Toast.LENGTH_SHORT).show()
+                                                }
+                                        }
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(this, "Error al registrar", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(this, "Error al verificar el correo en cuidadores", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(this, "Error al verificar el correo", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Error al verificar el correo en administradores", Toast.LENGTH_SHORT).show()
                         }
                 }
             }.addOnFailureListener {

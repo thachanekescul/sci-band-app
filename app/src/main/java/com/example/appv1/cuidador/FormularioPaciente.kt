@@ -68,37 +68,50 @@ class FormularioPaciente : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val pacienteData = hashMapOf(
-                "nombre" to nombre,
-                "apellido" to apellido,
-                "celular" to celular,
-                "fecha_nacimiento" to fechaNac,
-                "condicion_cronica" to condicion,
-                "registrado" to true
-            )
-
-            // ✅ Obtener código de organización desde SharedPreferences
             val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
             val orgCodigo = prefs.getString("id_organizacion", null) ?: ""
             val idCuidador = prefs.getString("id_usuario", null) ?: ""
 
-            db.collection("organizacion")
+            // Primero verificar el número de pacientes actuales
+            val pacientesRef = db.collection("organizacion")
                 .document(orgCodigo)
-                .collection("cuidadores") // 🔥 YA BIEN
+                .collection("cuidadores")
                 .document(idCuidador)
                 .collection("pacientes")
-                .document(codigoQR)
-                .set(pacienteData)
-                .addOnSuccessListener {
-                    db.collection("codigos_espera").document(codigoQR).delete()
 
-                    Toast.makeText(this, "Paciente registrado exitosamente", Toast.LENGTH_LONG).show()
-                    startActivity(Intent(this, MainActivityCuidador::class.java))
-                    finish()
+            pacientesRef.get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (querySnapshot.size() >= 8) {
+                        Toast.makeText(this, "No puedes registrar más de 8 pacientes.", Toast.LENGTH_LONG).show()
+                    } else {
+                        val pacienteData = hashMapOf(
+                            "nombre" to nombre,
+                            "apellido" to apellido,
+                            "celular" to celular,
+                            "fecha_nacimiento" to fechaNac,
+                            "condicion_cronica" to condicion,
+                            "registrado" to true
+                        )
+
+                        pacientesRef.document(codigoQR)
+                            .set(pacienteData)
+                            .addOnSuccessListener {
+                                // Eliminar código QR de espera
+                                db.collection("codigos_espera").document(codigoQR).delete()
+
+                                Toast.makeText(this, "Paciente registrado exitosamente", Toast.LENGTH_LONG).show()
+                                startActivity(Intent(this, MainActivityCuidador::class.java))
+                                finish()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Error al registrar paciente", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, "Error al registrar paciente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error al verificar pacientes existentes", Toast.LENGTH_SHORT).show()
                 }
         }
     }
 }
+

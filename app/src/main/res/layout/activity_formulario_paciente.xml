@@ -99,6 +99,32 @@
             android:paddingEnd="16dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white" />
+
+        <EditText
+            android:id="@+id/etEstatura"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/edittext_background"
+            android:drawablePadding="12dp"
+            android:hint="Estatura"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+        <EditText
+            android:id="@+id/etPeso"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/edittext_background"
+            android:drawablePadding="12dp"
+            android:hint="Peso"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
         <Spinner
             android:id="@+id/spCondicion"
             android:layout_width="match_parent"

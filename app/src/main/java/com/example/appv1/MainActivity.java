@@ -24,8 +24,10 @@ import android.widget.ImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.appv1.admin.MainAdministrador;
+import com.example.appv1.cuidador.HomeCuidadorFragment;
 import com.example.appv1.cuidador.MainActivityCuidador;
 import com.example.appv1.logins.CuidadorLogin;
+import com.example.appv1.paciente.HomePaciente;
 import com.example.appv1.paciente.PacienteQR;
 
 
@@ -104,5 +106,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+
+
     }
 }

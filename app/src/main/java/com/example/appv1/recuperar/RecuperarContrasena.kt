@@ -1,6 +1,5 @@
 package com.example.appv1.recuperar
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -27,19 +26,24 @@ class RecuperarContrasena : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
 
         // Llenar el Spinner con opciones de usuario
-        val userTypes = arrayOf("Administradores", "Cuidadores")
+        val userTypes = arrayOf("Administrador", "Cuidador") // Usar valores más claros para el backend
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, userTypes)
         spTipoUsuario.adapter = adapter
 
         btnEnviarCodigo.setOnClickListener {
             val correo = edtCorreo.text.toString().trim()
-            val tipoUsuario = spTipoUsuario.selectedItem.toString()
+            val tipoUsuario = spTipoUsuario.selectedItem.toString().trim()
 
-            if (correo.isNotEmpty()) {
+            // Depuración: Verifica el correo y el tipo de usuario
+            Log.d("RecuperarContrasena", "Correo: $correo")
+            Log.d("RecuperarContrasena", "Tipo de usuario: $tipoUsuario")
+
+            // Verifica si el correo y el tipo de usuario son válidos
+            if (correo.isNotEmpty() && tipoUsuario.isNotEmpty()) {
                 progressBar.visibility = View.VISIBLE
                 sendVerificationCode(correo, tipoUsuario)
             } else {
-                Toast.makeText(this, "Por favor, ingrese un correo válido.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, ingrese un correo válido y seleccione un tipo de usuario.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -51,6 +55,8 @@ class RecuperarContrasena : AppCompatActivity() {
             "email" to correo,
             "userType" to tipoUsuario
         )
+
+        Log.d("RecuperarContrasena", "Enviando datos a Firebase Functions: email = $correo, userType = $tipoUsuario")
 
         functions.getHttpsCallable("sendVerificationCode")
             .call(data)
@@ -66,9 +72,8 @@ class RecuperarContrasena : AppCompatActivity() {
                     startActivity(intent)
                 } else {
                     Toast.makeText(this, "Error al enviar el código: ${success["message"]}", Toast.LENGTH_SHORT).show()
-                    Log.e("loool", "${success["message"]}")
+                    Log.e("RecuperarContrasena", "Error al enviar el código: ${success["message"]}")
                     progressBar.visibility = View.GONE
-
                 }
             }
             .addOnFailureListener { exception ->
@@ -76,11 +81,10 @@ class RecuperarContrasena : AppCompatActivity() {
                 exception.printStackTrace()
 
                 // Muestra el mensaje del error en el Toast
-                Log.e("tag", "${exception.message}", exception)
+                Log.e("RecuperarContrasena", "Error al comunicarse con el servidor: ${exception.message}", exception)
 
                 // Oculta el ProgressBar
                 progressBar.visibility = View.GONE
             }
-
     }
 }
