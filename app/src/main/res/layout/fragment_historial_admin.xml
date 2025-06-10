@@ -1,14 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".admin.HistorialAdminFragment">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/fondo_main"
+    tools:context=".admin.hist.HistorialAdminFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!-- 1) ChipGroup principal: debe tener singleSelection="true" -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupFiltro"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        android:layout_marginBottom="16dp">
 
-</FrameLayout>
+        <!-- 2) Cada Chip debe ser checkable -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPacientes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pacientes"
+            android:checkable="true"
+            app:chipStyle="@style/Widget.MaterialComponents.Chip.Choice" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCuidadores"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cuidadores"
+            android:checkable="true"
+            app:chipStyle="@style/Widget.MaterialComponents.Chip.Choice" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Este ChipGroup también necesita singleSelection="true" y los chips serán añadidos dinámicamente -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupPacientes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/chartsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+</LinearLayout>

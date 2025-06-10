@@ -2,13 +2,10 @@ package com.example.appv1.admin
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.appv1.R
-import com.example.appv1.cuidador.HistorialCUIDFragment
-import com.example.appv1.cuidador.HomeCuidadorFragment
-import com.example.appv1.cuidador.PacientesCUIDFragment
+import com.example.appv1.ui.admin.HistorialAdminFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainAdministrador : AppCompatActivity() {

@@ -4,11 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appv1.R
 import com.example.appv1.admin.UsuarioItem
-
+import com.bumptech.glide.Glide
 class UsuariosAdapter(
     private val items: List<UsuarioItem>,
     private val onEditarCuidadorClick: (String) -> Unit,
@@ -49,10 +50,15 @@ class UsuariosAdapter(
 
     inner class CuidadorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nombre: TextView = itemView.findViewById(R.id.txtNombreCuidador)
+        private val img: ImageView = itemView.findViewById(R.id.imgCuidador)
         private val editarBtn: Button = itemView.findViewById(R.id.btnEditarCuidador)
 
         fun bind(cuidador: UsuarioItem.CuidadorItem) {
             nombre.text = cuidador.nombre
+            Glide.with(itemView.context)
+                .load(cuidador.profilePictureUrl)
+                .into(img)
+
             editarBtn.setOnClickListener {
                 onEditarCuidadorClick(cuidador.id)
             }
@@ -61,11 +67,16 @@ class UsuariosAdapter(
 
     inner class PacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nombre: TextView = itemView.findViewById(R.id.txtNombrePaciente)
+        private val img: ImageView = itemView.findViewById(R.id.imgPaciente)
         private val medirBtn: Button = itemView.findViewById(R.id.btnMedirPaciente)
         private val editarBtn: Button = itemView.findViewById(R.id.btnEditarPaciente)
 
         fun bind(paciente: UsuarioItem.PacienteItem) {
             nombre.text = paciente.nombre
+            Glide.with(itemView.context)
+                .load(paciente.profilePictureUrl)
+                .into(img)
+
             medirBtn.setOnClickListener {
                 onMedirPacienteClick(paciente.idPaciente)
             }

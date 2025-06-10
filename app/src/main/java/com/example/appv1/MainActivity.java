@@ -1,4 +1,6 @@
 package com.example.appv1;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -22,8 +24,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.appv1.admin.MainAdministrador;
+import com.example.appv1.admin.manejodatos.LlamadosWorker;
 import com.example.appv1.cuidador.HomeCuidadorFragment;
 import com.example.appv1.cuidador.MainActivityCuidador;
 import com.example.appv1.logins.CuidadorLogin;
@@ -84,6 +92,18 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, CuidadorLogin.class);
             startActivity(intent);
         });
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(LlamadosWorker.class, 1, MINUTES)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork("LlamadosWorker", ExistingPeriodicWorkPolicy.KEEP, workRequest);
+
     }
 
 

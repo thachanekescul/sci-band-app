@@ -2,22 +2,19 @@ package com.example.appv1.cuidador
 
 import android.content.Context
 import android.content.Intent
-import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import com.example.appv1.R;
+import android.widget.*
+import com.bumptech.glide.Glide
+import com.example.appv1.R
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.appv1.Adapters.PacienteAdapter.PacienteAdapter;
-import com.example.appv1.Adapters.PacienteAdapter.Paciente;
+import com.example.appv1.Adapters.PacienteAdapter.PacienteAdapter
+import com.example.appv1.Adapters.PacienteAdapter.Paciente
 import com.example.appv1.medicion.MedicionTiempoReal
 import com.google.firebase.firestore.DocumentReference
 
@@ -30,7 +27,7 @@ class PacientesCUIDFragment : Fragment() {
     private lateinit var txtNombreOrganizacion: TextView
     private lateinit var btnConfig: ImageView
     private val listaPacientes = mutableListOf<Paciente>()
-
+    private lateinit var imgFotoPerfil: ImageView
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,10 +42,10 @@ class PacientesCUIDFragment : Fragment() {
         val fabAgregarPaciente = view.findViewById<View>(R.id.fabAgregarPaciente)
         recyclerView = view.findViewById(R.id.recyclerPacientes)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
+        imgFotoPerfil = view.findViewById(R.id.imgFotoPerfil)
         txtNombreCuidador = view.findViewById(R.id.txtNombreCuidador)
         txtNombreOrganizacion = view.findViewById(R.id.txtNombreOrganizacion)
-        btnConfig=view.findViewById(R.id.imgConfig)
+        btnConfig = view.findViewById(R.id.imgConfig)
         adapter = PacienteAdapter(listaPacientes,
             onEditarClick = { paciente -> editarPaciente(paciente) },
             onMedirClick = { paciente -> medirPaciente(paciente) }
@@ -56,7 +53,6 @@ class PacientesCUIDFragment : Fragment() {
         recyclerView.adapter = adapter
 
         cargarDatosDelCuidador()
-
 
         btnConfig.setOnClickListener {
             val intent = Intent(requireContext(), ConfiguracionCuidador::class.java)
@@ -88,7 +84,7 @@ class PacientesCUIDFragment : Fragment() {
                 txtNombreOrganizacion.text = "Organización: $nombreOrg"
             }
 
-        // Cargar nombre del cuidador
+        // Cargar datos del cuidador, incluyendo foto
         val cuidadorRef = db.collection("organizacion")
             .document(idOrganizacion)
             .collection("cuidadores")
@@ -98,6 +94,17 @@ class PacientesCUIDFragment : Fragment() {
             val nombre = cuidadorSnapshot.getString("nombre") ?: ""
             val ape = cuidadorSnapshot.getString("ape") ?: ""
             txtNombreCuidador.text = "Cuidador: $nombre $ape"
+
+            val fotoUrl = cuidadorSnapshot.getString("profile_picture_url")
+            if (!fotoUrl.isNullOrEmpty()) {
+                Glide.with(this)
+                    .load(fotoUrl)
+                    .placeholder(R.drawable.images)
+                    .into(imgFotoPerfil)
+            } else {
+                // Imagen por defecto si no hay foto
+                imgFotoPerfil.setImageResource(R.drawable.images)
+            }
 
             // Después de cargar el cuidador, cargar sus pacientes
             cargarPacientes(cuidadorRef)
@@ -111,6 +118,11 @@ class PacientesCUIDFragment : Fragment() {
                 listaPacientes.clear()
                 for (doc in result) {
                     val paciente = doc.toObject(Paciente::class.java).copy(id = doc.id)
+                    val profilePictureUrl = doc.getString("profile_picture_url") // Obtener la URL de la foto
+
+                    // Añadir la URL de la foto al paciente
+                    paciente.profilePictureUrl = profilePictureUrl ?: ""  // Si no tiene foto, asignar cadena vacía
+
                     listaPacientes.add(paciente)
                 }
                 adapter.notifyDataSetChanged()

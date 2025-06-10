@@ -1,7 +1,6 @@
 package com.example.appv1.cuidador
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -26,7 +25,6 @@ class RegistroDePaciente : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro_de_paciente)
 
@@ -34,7 +32,6 @@ class RegistroDePaciente : AppCompatActivity() {
         btnEscanear = findViewById(R.id.btnEscanear)
 
         btnEscanear.setOnClickListener {
-
             val options = ScanOptions()
             options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
             options.setPrompt("Escanea el código QR")
@@ -53,19 +50,17 @@ class RegistroDePaciente : AppCompatActivity() {
         db.collection("codigos_espera").document(codigo).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    db.collection("codigos_espera").document(codigo)
-                        .update("escaneado", true)
-                        .addOnSuccessListener {
-                            val intent = Intent(
-                                this@RegistroDePaciente,
-                                FormularioPaciente::class.java
-                            ).apply {
-                                putExtra("codigo_qr", codigo)
-                                // 👇 Ya no ponemos "codigo_org"
-                            }
-                            startActivity(intent)
-                        }
+                    // No actualizamos "escaneado" aquí.
+                    val intent = Intent(this@RegistroDePaciente, FormularioPaciente::class.java).apply {
+                        putExtra("codigo_qr", codigo)
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "Código no válido", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al verificar código", Toast.LENGTH_SHORT).show()
             }
     }
 }

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fondo_main"
-    tools:context=".cuidador.HistorialCUIDFragment">
+    tools:context=".cuidador.hist.HistorialCUIDFragment">
 
     <!-- Contenedor principal vertical -->
     <LinearLayout
@@ -15,35 +15,27 @@
         android:orientation="vertical"
         android:padding="15dp">
 
-
+        <!-- ChipGroup dinámico: aquí se cargarán los pacientes -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
-            android:layout_width="379dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
             app:chipSpacing="8dp"
-            app:singleSelection="true">
+            app:singleSelection="true" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:text="Todo"
-                app:chipBackgroundColor="@color/white"
-                />
-
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:text="Shorts" />
-
-            <!-- Agrega más chips -->
-        </com.google.android.material.chip.ChipGroup>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerPacientes"
+        <!-- ScrollView que contiene las gráficas -->
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="20dp"
-            tools:listitem="@layout/item_graficas"/>
+            android:layout_weight="1">
 
+            <LinearLayout
+                android:id="@+id/chartsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </ScrollView>
     </LinearLayout>
-
 </FrameLayout>

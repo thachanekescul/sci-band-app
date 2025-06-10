@@ -123,7 +123,7 @@ class EditarCuidadorAdmin : AppCompatActivity() {
     private fun verificarPassword(passwordIngresada: String) {
         db.collection("organizacion")
             .document(organizacionId)
-            .collection("admin")
+            .collection("administradores")
             .document(adminId)
             .get()
             .addOnSuccessListener { document ->

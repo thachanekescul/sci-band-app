@@ -31,6 +31,7 @@ class GruposAdminFragment : Fragment() {
     private lateinit var txtNombreAdmin: TextView
     private lateinit var txtCodigoOrganizacion: TextView
     private lateinit var imgConfigAdmin: ImageView
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_grupos_admin, container, false)
 
@@ -40,8 +41,10 @@ class GruposAdminFragment : Fragment() {
         txtNombreOrganizacion = view.findViewById(R.id.txtNombreOrganizacion)
         txtNombreAdmin = view.findViewById(R.id.txtNombreAdmin)
         txtCodigoOrganizacion = view.findViewById(R.id.txtCodigoOrganizacion)
-       imgConfigAdmin = view.findViewById(R.id.imgConfigAdmin)
-        usuariosAdapter = UsuariosAdapter(listaUsuarios,
+        imgConfigAdmin = view.findViewById(R.id.imgConfigAdmin)
+
+        usuariosAdapter = UsuariosAdapter(
+            listaUsuarios,
             onEditarCuidadorClick = { cuidadorId ->
                 val intent = Intent(requireContext(), EditarCuidadorAdmin::class.java)
                 intent.putExtra("idCuidador", cuidadorId)
@@ -54,18 +57,16 @@ class GruposAdminFragment : Fragment() {
                 startActivity(intent)
             },
             onMedirPacienteClick = { pacienteId ->
-                Toast.makeText(requireContext(), "Función medir en paciente: $pacienteId", Toast.LENGTH_SHORT).show()
-
                 val intent = Intent(requireContext(), MedicionTiempoReal::class.java)
                 intent.putExtra("idPaciente", pacienteId)
                 startActivity(intent)
             }
         )
+
         imgConfigAdmin.setOnClickListener {
             val intent = Intent(requireContext(), ConfiguracionAdmin::class.java)
             startActivity(intent)
         }
-
 
         recyclerView.adapter = usuariosAdapter
 
@@ -73,7 +74,6 @@ class GruposAdminFragment : Fragment() {
         idOrganizacion = prefs.getString("id_organizacion", "")!!
 
         cargarOrganizacion()
-
         cargarCuidadores()
 
         return view
@@ -85,7 +85,7 @@ class GruposAdminFragment : Fragment() {
         val idOrganizacion = prefs.getString("id_organizacion", "") // Obtener el ID de la organización
 
         if (idAdmin.isNullOrEmpty() || idOrganizacion.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Error: no se pudo obtener el ID del admin o la organización", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error: datos de sesión incompletos", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -98,7 +98,7 @@ class GruposAdminFragment : Fragment() {
                     val nombreOrg = document.getString("nombre") ?: "Sin nombre"
                     txtNombreOrganizacion.text = nombreOrg
                     val codigoOrg = document.id
-                    txtCodigoOrganizacion.text = "Código: $codigoOrg"
+                    txtCodigoOrganizacion.text = "Código de su Org: $codigoOrg"
 
                     // Ahora carga el admin con el ID que obtuvimos
                     cargarAdmin(idAdmin)
@@ -118,14 +118,13 @@ class GruposAdminFragment : Fragment() {
             .addOnSuccessListener { adminDoc ->
                 if (adminDoc.exists()) {
                     val nombreAdmin = adminDoc.getString("nombre") ?: "Sin nombre del admin"
-                    txtNombreAdmin.text = nombreAdmin // Muestra el nombre del admin
+                    txtNombreAdmin.text = nombreAdmin
                 }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Error al cargar el admin", Toast.LENGTH_SHORT).show()
             }
     }
-
 
     private fun cargarCuidadores() {
         db.collection("organizacion")
@@ -137,6 +136,7 @@ class GruposAdminFragment : Fragment() {
                 for (document in result) {
                     val cuidadorId = document.id
                     val nombre = document.getString("nombre") ?: "Sin nombre"
+                    val profilePictureUrl = document.getString("profile_picture_url") ?: "" // Cargar la URL de la foto
 
                     val chip = Chip(requireContext()).apply {
                         text = nombre
@@ -152,16 +152,16 @@ class GruposAdminFragment : Fragment() {
                     chipGroup.addView(chip)
 
                     chip.setOnClickListener {
-                        cargarGrupo(cuidadorId, nombre)
+                        cargarGrupo(cuidadorId, nombre, profilePictureUrl)
                     }
                 }
             }
     }
 
-    private fun cargarGrupo(cuidadorId: String, nombreCuidador: String) {
+    private fun cargarGrupo(cuidadorId: String, nombreCuidador: String, profilePictureUrl: String) {
         listaUsuarios.clear()
 
-        listaUsuarios.add(UsuarioItem.CuidadorItem(cuidadorId, nombreCuidador))
+        listaUsuarios.add(UsuarioItem.CuidadorItem(cuidadorId, nombreCuidador, profilePictureUrl))
 
         db.collection("organizacion")
             .document(idOrganizacion)
@@ -173,7 +173,9 @@ class GruposAdminFragment : Fragment() {
                 for (document in result) {
                     val pacienteId = document.id
                     val nombrePaciente = document.getString("nombre") ?: "Paciente sin nombre"
-                    listaUsuarios.add(UsuarioItem.PacienteItem(cuidadorId, pacienteId, nombrePaciente))
+                    val pacienteProfilePictureUrl = document.getString("profile_picture_url") ?: ""
+
+                    listaUsuarios.add(UsuarioItem.PacienteItem(cuidadorId, pacienteId, nombrePaciente, pacienteProfilePictureUrl))
                 }
                 usuariosAdapter.notifyDataSetChanged()
             }

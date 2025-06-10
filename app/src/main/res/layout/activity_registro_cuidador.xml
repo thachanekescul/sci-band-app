@@ -25,6 +25,8 @@
             android:paddingTop="32dp"
             android:paddingBottom="32dp">
 
+
+
             <!-- Texto de presentación -->
             <TextView
                 android:id="@+id/tvPresentacion"
@@ -123,7 +125,28 @@
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
-            <!-- Campo de nombre -->
+            <ImageView
+                android:id="@+id/ivFotoPerfil"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/images"
+                android:background="@drawable/img_circular"
+                android:clipToOutline="true" />
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSeleccionarFoto"
+                android:layout_width="221dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/button_background_2"
+                android:text="Seleccionar Foto de Perfil"
+                android:textColor="@color/maint" />
+
+
             <EditText
                 android:id="@+id/etNombre"
                 android:layout_width="match_parent"

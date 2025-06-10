@@ -7,17 +7,19 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.appv1.R
-
 
 class PacienteAdapter {
     data class Paciente(
-        val nombre: String = "",
-        val apellido: String = "",
-        val telefono: String = "",
-        val condicion_cronica: String = "",
-        val id: String = ""
+        var nombre: String = "",
+        var apellido: String = "",
+        var telefono: String = "",
+        var condicion_cronica: String = "",
+        var id: String = "",
+        var profilePictureUrl: String = ""  // Usamos 'var' en lugar de 'val'
     )
+
 
     class PacienteAdapter(
         private val pacientes: List<Paciente>,
@@ -29,7 +31,7 @@ class PacienteAdapter {
             val nombre: TextView = itemView.findViewById(R.id.txtNombrePaciente)
             val btnEditar: Button = itemView.findViewById(R.id.btnEditarPaciente)
             val btnMedir: Button = itemView.findViewById(R.id.btnMedirPaciente)
-            val img: ImageView = itemView.findViewById(R.id.imgPaciente)
+            val img: ImageView = itemView.findViewById(R.id.imgPaciente)  // ImageView para mostrar la foto
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,8 +46,15 @@ class PacienteAdapter {
             holder.nombre.text = "${paciente.nombre} ${paciente.apellido}"
             holder.btnEditar.setOnClickListener { onEditarClick(paciente) }
             holder.btnMedir.setOnClickListener { onMedirClick(paciente) }
-            holder.img.setImageResource(R.drawable.images)
+
+            // Cargar la imagen desde la URL con Glide
+            if (paciente.profilePictureUrl.isNotEmpty()) {
+                Glide.with(holder.itemView.context)
+                    .load(paciente.profilePictureUrl)
+                    .into(holder.img)
+            } else {
+                holder.img.setImageResource(R.drawable.images)  // Si no hay foto, muestra un placeholder
+            }
         }
     }
 }
-

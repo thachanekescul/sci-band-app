@@ -46,75 +46,82 @@ class RegistroAdmin : AppCompatActivity() {
         btnRegistro = findViewById(R.id.btnRegistro)
 
         btnRegistro.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val pass = etPass.text.toString().trim()
-            val confirmar = etConfirmar.text.toString().trim()
-            val nombre = etNombre.text.toString().trim()
-            val apellido = etApellido.text.toString().trim()
-            val celular = etCelular.text.toString().trim()
-
-            // Validaciones
-            if (email.isEmpty() || pass.isEmpty() || confirmar.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || celular.isEmpty()) {
-                Toast.makeText(this, "Por favor, completa todos los campos.", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            }
-
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Correo electrónico inválido.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (pass != confirmar) {
-                Toast.makeText(this, "Las contraseñas no coinciden.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-
-            val organizacionesRef = db.collection("organizacion")
-
-            organizacionesRef.get()
-                .addOnSuccessListener { orgSnapshots ->
-                    var encontrado = false
-                    var consultasPendientes = orgSnapshots.size()
-
-
-                    for (orgDoc in orgSnapshots) {
-                        val adminRef = orgDoc.reference.collection("administradores")
-
-                        adminRef.whereEqualTo("email", email)
-                            .get()
-                            .addOnSuccessListener { adminSnapshots ->
-                                if (!adminSnapshots.isEmpty && !encontrado) {
-                                    Toast.makeText(this, "El correo ya existe", Toast.LENGTH_SHORT)
-                                        .show()
-
-                                } else {
-                                    val intent = Intent(
-                                        this@RegistroAdmin,
-                                        ConfirmarDatosAdmin::class.java
-                                    ).apply {
-                                        putExtra("nombre_org", nombreOrg)
-                                        putExtra("direccion", direccionOrg)
-                                        putExtra("celular", celularOrg)
-                                        putExtra("fecha_fundacion", fechaFundacion)
-
-                                        putExtra("admin_email", email)
-                                        putExtra("admin_nombre", nombre)
-                                        putExtra("admin_apellido", apellido)
-                                        putExtra("admin_celular", celular)
-                                        putExtra("admin_password", pass)
-
-
-                                    }
-
-                                    startActivity(intent)
-                                }
-                            }
-                    }
-
-
-                }
+           registrarAdmin()
         }
+    }
+
+    private fun registrarAdmin(){
+        val email = etEmail.text.toString().trim()
+        val pass = etPass.text.toString().trim()
+        val confirmar = etConfirmar.text.toString().trim()
+        val nombre = etNombre.text.toString().trim()
+        val apellido = etApellido.text.toString().trim()
+        val celular = etCelular.text.toString().trim()
+
+        // Validaciones
+        if (email.isEmpty() || pass.isEmpty() || confirmar.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || celular.isEmpty()) {
+            Toast.makeText(this, "Por favor, completa todos los campos.", Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Correo electrónico inválido.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (pass != confirmar) {
+            Toast.makeText(this, "Las contraseñas no coinciden.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+        val organizacionesRef = db.collection("organizacion")
+
+        organizacionesRef.get()
+            .addOnSuccessListener { orgSnapshots ->
+
+
+
+                for (orgDoc in orgSnapshots) {
+                    val adminRef = orgDoc.reference.collection("administradores")
+
+                    adminRef.whereEqualTo("email", email)
+                        .get()
+                        .addOnSuccessListener { adminSnapshots ->
+                            if (!adminSnapshots.isEmpty ) {
+
+                                Toast.makeText(this, "El correo ya existe", Toast.LENGTH_SHORT).show()
+                                return@addOnSuccessListener
+                            }
+
+
+
+                                val intent = Intent(
+                                    this@RegistroAdmin,
+                                    ConfirmarDatosAdmin::class.java
+                                ).apply {
+                                    putExtra("nombre_org", nombreOrg)
+                                    putExtra("direccion", direccionOrg)
+                                    putExtra("celular", celularOrg)
+                                    putExtra("fecha_fundacion", fechaFundacion)
+
+                                    putExtra("admin_email", email)
+                                    putExtra("admin_nombre", nombre)
+                                    putExtra("admin_apellido", apellido)
+                                    putExtra("admin_celular", celular)
+                                    putExtra("admin_password", pass)
+
+
+                                }
+                                startActivity(intent)
+
+
+                        }
+                }
+
+
+            }
+
     }
 }

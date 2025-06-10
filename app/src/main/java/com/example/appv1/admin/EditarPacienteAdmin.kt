@@ -4,11 +4,15 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.*
+import java.util.Calendar
 
 class EditarPacienteAdmin : AppCompatActivity() {
 
@@ -20,6 +24,9 @@ class EditarPacienteAdmin : AppCompatActivity() {
     private lateinit var spCondicion: Spinner
     private lateinit var btnGuardar: Button
     private lateinit var btnEliminar: Button
+
+    private lateinit var etPeso: EditText
+    private lateinit var etEstatura: EditText
 
     private lateinit var pacienteId: String
     private lateinit var cuidadorId: String
@@ -41,6 +48,8 @@ class EditarPacienteAdmin : AppCompatActivity() {
         spCondicion = findViewById(R.id.spCondicion)
         btnGuardar = findViewById(R.id.btnGuardar)
         btnEliminar = findViewById(R.id.btnEliminar)
+        etPeso = findViewById(R.id.etPeso)
+        etEstatura = findViewById(R.id.etEstatura)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, condiciones)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -57,7 +66,6 @@ class EditarPacienteAdmin : AppCompatActivity() {
             }, year, month, day).show()
         }
 
-        // Recibir ambos IDs
         pacienteId = intent.getStringExtra("idPaciente") ?: ""
         cuidadorId = intent.getStringExtra("idCuidador") ?: ""
 
@@ -88,8 +96,7 @@ class EditarPacienteAdmin : AppCompatActivity() {
             if (document.exists()) {
                 etNombre.setText(document.getString("nombre") ?: "")
                 etApellido.setText(document.getString("apellido") ?: "")
-                val celular = document.get("celular")?.toString() ?: ""
-                etCelular.setText(celular)
+                etCelular.setText(document.getString("celular") ?: "")
                 etFechaNacimiento.setText(document.getString("fecha_nacimiento") ?: "")
 
                 val condicion = document.getString("condicion_cronica") ?: "Ninguna"
@@ -97,6 +104,9 @@ class EditarPacienteAdmin : AppCompatActivity() {
                 if (index >= 0) {
                     spCondicion.setSelection(index)
                 }
+
+                etPeso.setText(document.getString("peso")?: "")
+                etEstatura.setText(document.getString("estatura")?: "")
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Error al cargar datos del paciente", Toast.LENGTH_SHORT).show()
@@ -109,11 +119,15 @@ class EditarPacienteAdmin : AppCompatActivity() {
         val nuevoCelular = etCelular.text.toString().trim()
         val nuevaFechaNacimiento = etFechaNacimiento.text.toString().trim()
         val nuevaCondicion = spCondicion.selectedItem.toString()
+        val pesoStr = etPeso.text.toString().trim()
+        val estaturaStr = etEstatura.text.toString().trim()
 
         if (nuevoNombre.isEmpty() || nuevoApellido.isEmpty() || nuevoCelular.isEmpty() || nuevaFechaNacimiento.isEmpty()) {
             Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
             return
         }
+
+
 
         val pacienteRef = db.collection("organizacion")
             .document(organizacionId)
@@ -122,20 +136,25 @@ class EditarPacienteAdmin : AppCompatActivity() {
             .collection("pacientes")
             .document(pacienteId)
 
-        pacienteRef.update(
-            mapOf(
-                "nombre" to nuevoNombre,
-                "apellido" to nuevoApellido,
-                "celular" to nuevoCelular,
-                "fecha_nacimiento" to nuevaFechaNacimiento,
-                "condicion_cronica" to nuevaCondicion
-            )
-        ).addOnSuccessListener {
-            Toast.makeText(this, "Datos actualizados exitosamente", Toast.LENGTH_LONG).show()
-            finish()
-        }.addOnFailureListener {
-            Toast.makeText(this, "Error al actualizar paciente", Toast.LENGTH_SHORT).show()
-        }
+        val datosActualizados = mutableMapOf<String, Any>(
+            "nombre" to nuevoNombre,
+            "apellido" to nuevoApellido,
+            "celular" to nuevoCelular,
+            "fecha_nacimiento" to nuevaFechaNacimiento,
+            "condicion_cronica" to nuevaCondicion,
+            "peso" to pesoStr,
+            "estatura" to estaturaStr
+        )
+
+
+        pacienteRef.update(datosActualizados)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Datos actualizados exitosamente", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al actualizar paciente", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun mostrarDialogoConfirmacion() {
@@ -161,7 +180,7 @@ class EditarPacienteAdmin : AppCompatActivity() {
     private fun verificarPassword(passwordIngresada: String) {
         db.collection("organizacion")
             .document(organizacionId)
-            .collection("admin")
+            .collection("administradores")
             .document(adminId)
             .get()
             .addOnSuccessListener { document ->

@@ -21,10 +21,11 @@
             android:text="Nombre de la Organización"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:gravity="center"
             android:textColor="@color/main2"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginStart="65dp"/>
+            android:layout_marginStart="120dp"/>
 
         <!-- Imagen de configuración a la derecha del nombre de la organización -->
         <ImageView
