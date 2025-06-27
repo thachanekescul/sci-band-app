@@ -5,14 +5,19 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.bumptech.glide.Glide
-import java.util.*
+import java.util.Calendar
+import java.util.UUID
 
 class FormularioPaciente : AppCompatActivity() {
 
@@ -41,7 +46,7 @@ class FormularioPaciente : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         ivFotoPerfil = findViewById(R.id.ivFotoPerfil)
-        btnSeleccionarFoto = findViewById(R.id.btnSeleccionarFoto)  // Botón para seleccionar foto
+        btnSeleccionarFoto = findViewById(R.id.btnSeleccionarFoto)
         btnRegistro = findViewById(R.id.btnRegistro)
         etNombre = findViewById(R.id.etNombre)
         etApellido = findViewById(R.id.etApellido)
@@ -57,7 +62,6 @@ class FormularioPaciente : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spCondicion.adapter = adapter
 
-        // Selección de la fecha de nacimiento
         etFechaNacimiento.setFocusable(false)
         etFechaNacimiento.setOnClickListener {
             val c = Calendar.getInstance()
@@ -70,12 +74,10 @@ class FormularioPaciente : AppCompatActivity() {
             }, year, month, day).show()
         }
 
-        // Botón para seleccionar la foto
         btnSeleccionarFoto.setOnClickListener {
-            // Abre la galería para seleccionar una imagen
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             intent.type = "image/*"
-            startActivityForResult(intent, 71)  // 71 es el código para seleccionar imagen
+            startActivityForResult(intent, 71)
         }
 
         btnRegistro.setOnClickListener {
@@ -85,15 +87,12 @@ class FormularioPaciente : AppCompatActivity() {
             val fechaNac = etFechaNacimiento.text.toString().trim()
             val pesoStr = etPeso.text.toString().trim()
             val estaturaStr = etEstatura.text.toString().trim()
-            val condicion = spCondicion.selectedItem.toString()
 
-            // Validaciones
             if (nombre.isEmpty() || apellido.isEmpty() || celular.isEmpty() || fechaNac.isEmpty()) {
                 Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Convertir a números los campos de peso y estatura
             val peso = pesoStr.toDoubleOrNull()
             val estatura = estaturaStr.toDoubleOrNull()
 
@@ -106,9 +105,27 @@ class FormularioPaciente : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Si se seleccionó una foto, la subimos primero
-            imageUri?.let {
-                subirImagenAFirebase(it)  // Subimos la imagen y guardamos todos los datos
+            val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
+            val orgCodigo = prefs.getString("id_organizacion", "") ?: ""
+            val idCuidador = prefs.getString("id_usuario", "") ?: ""
+
+            val pacientesRef = db.collection("organizacion")
+                .document(orgCodigo)
+                .collection("cuidadores")
+                .document(idCuidador)
+                .collection("pacientes")
+
+            pacientesRef.get().addOnSuccessListener { snapshot ->
+                if (snapshot.size() >= 8) {
+                    Toast.makeText(this, "Ya no puedes registrar más de 8 pacientes", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                } else {
+                    imageUri?.let {
+                        subirImagenAFirebase(it, pacientesRef, orgCodigo, idCuidador)
+                    }
+                }
+            }.addOnFailureListener {
+                Toast.makeText(this, "Error al verificar cantidad de pacientes", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -117,18 +134,23 @@ class FormularioPaciente : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 71 && resultCode == RESULT_OK && data != null) {
             imageUri = data.data
-            ivFotoPerfil.setImageURI(imageUri)  // Mostrar la imagen seleccionada en el ImageView
+            ivFotoPerfil.setImageURI(imageUri)
         }
     }
 
-    private fun subirImagenAFirebase(imageUri: Uri) {
+    private fun subirImagenAFirebase(
+        imageUri: Uri,
+        pacientesRef: com.google.firebase.firestore.CollectionReference,
+        orgCodigo: String,
+        idCuidador: String
+    ) {
         val fileReference = storageRef.child("profile_pictures/${UUID.randomUUID()}.jpg")
 
         fileReference.putFile(imageUri)
             .addOnSuccessListener {
                 fileReference.downloadUrl.addOnSuccessListener { uri ->
                     val imageUrl = uri.toString()
-                    guardarPacienteConFoto(imageUrl)  // Guardar paciente con la URL de la imagen
+                    guardarPacienteConFoto(imageUrl, pacientesRef, orgCodigo, idCuidador)
                 }
             }
             .addOnFailureListener {
@@ -136,43 +158,19 @@ class FormularioPaciente : AppCompatActivity() {
             }
     }
 
-    private fun guardarPacienteConFoto(imageUrl: String) {
+    private fun guardarPacienteConFoto(
+        imageUrl: String,
+        pacientesRef: com.google.firebase.firestore.CollectionReference,
+        orgCodigo: String,
+        idCuidador: String
+    ) {
         val nombre = etNombre.text.toString().trim()
         val apellido = etApellido.text.toString().trim()
         val celular = etCelular.text.toString().trim()
         val fechaNac = etFechaNacimiento.text.toString().trim()
-        val pesoStr = etPeso.text.toString().trim()
-        val estaturaStr = etEstatura.text.toString().trim()
+        val peso = etPeso.text.toString().trim().toDoubleOrNull() ?: 0.0
+        val estatura = etEstatura.text.toString().trim().toDoubleOrNull() ?: 0.0
         val condicion = spCondicion.selectedItem.toString()
-
-        // Convertir a números los campos de peso y estatura
-        val peso = pesoStr.toDoubleOrNull()
-        val estatura = estaturaStr.toDoubleOrNull()
-
-        if (nombre.isEmpty() || apellido.isEmpty() || celular.isEmpty() || fechaNac.isEmpty()) {
-            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (pesoStr.isNotEmpty() && peso == null) {
-            Toast.makeText(this, "Peso inválido", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (estaturaStr.isNotEmpty() && estatura == null) {
-            Toast.makeText(this, "Estatura inválida", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
-        val orgCodigo = prefs.getString("id_organizacion", "") ?: ""
-        val idCuidador = prefs.getString("id_usuario", "") ?: ""
-
-        val pacientesRef = db.collection("organizacion")
-            .document(orgCodigo)
-            .collection("cuidadores")
-            .document(idCuidador)
-            .collection("pacientes")
 
         val pacienteData = hashMapOf(
             "nombre" to nombre,
@@ -180,16 +178,15 @@ class FormularioPaciente : AppCompatActivity() {
             "celular" to celular,
             "fecha_nacimiento" to fechaNac,
             "condicion_cronica" to condicion,
-            "peso" to (peso ?: 0.0),
-            "estatura" to (estatura ?: 0.0),
-            "profile_picture_url" to imageUrl,  // Aquí guardamos la URL de la imagen
+            "peso" to peso,
+            "estatura" to estatura,
+            "profile_picture_url" to imageUrl,
             "registrado" to true
         )
 
         pacientesRef.document(codigoQR)
             .set(pacienteData)
             .addOnSuccessListener {
-                // Aquí sí actualizamos "escaneado" a true y eliminamos el código
                 db.collection("codigos_espera").document(codigoQR)
                     .update("escaneado", true)
                     .addOnSuccessListener {

@@ -41,11 +41,20 @@ class RegistroDePaciente : AppCompatActivity() {
 
             qrLauncher.launch(options)
         }
+
+
+
     }
 
     private fun verificarCodigo(codigo: String) {
         val prefs = getSharedPreferences("usuario_sesion", MODE_PRIVATE)
         val orgCodigo = prefs.getString("id_organizacion", null) ?: ""
+
+
+        if (!codigo.matches(Regex("^\\d{4,30}$"))) {
+            Toast.makeText(this, "Codigo QR invalido", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         db.collection("codigos_espera").document(codigo).get()
             .addOnSuccessListener { doc ->

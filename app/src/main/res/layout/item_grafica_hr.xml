@@ -63,7 +63,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#FF0000"
+                    android:background="#FFC6B8"
                     android:padding="4dp">
 
                     <com.db.williamchart.view.LineChartView

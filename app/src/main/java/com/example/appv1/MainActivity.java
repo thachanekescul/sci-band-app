@@ -126,7 +126,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-
+        if ("apaciente".equals(tipoUsuario) && idUsuario != null && idOrganizacion != null) {
+            Intent intent = new Intent(MainActivity.this, HomePaciente.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 }

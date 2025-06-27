@@ -18,10 +18,11 @@
             <LinearLayout
                 android:id="@+id/layoutPulsera"
                 android:layout_width="0dp"
-                android:layout_height="261dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/rounded_background"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
+                android:paddingBottom="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -34,40 +35,25 @@
                     android:src="@drawable/pulsera"
                     android:layout_marginTop="18dp"/>
 
-                <!-- Nombre del dispositivo -->
                 <TextView
                     android:id="@+id/txtNombrePulsera"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="ESP32"
+                    android:text="SCI-BAND Paciente"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
-
-                <!-- Estado de batería -->
-                <TextView
-                    android:id="@+id/txtBateria"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Batería: 80%"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/txtEstadoConexion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-200dp"
-                    android:layout_marginEnd="140dp"
+                    android:layout_marginTop="4dp"
                     android:text="Conectado"
                     android:textColor="@android:color/holo_green_light"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-
-                    />
+                    android:textSize="14sp" />
             </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/linearLayoutmain"

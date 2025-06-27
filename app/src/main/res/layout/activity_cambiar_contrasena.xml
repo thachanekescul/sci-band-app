@@ -21,11 +21,22 @@
         android:gravity="center">
 
         <EditText
-            android:id="@+id/edtCodigo"
+            android:id="@+id/edtNombreCambiar"
             android:background="@drawable/edittext_background"
             android:layout_height="60dp"
             android:layout_marginBottom="16dp"
-            android:hint="Código recibido"
+            android:hint="Nombre"
+            android:inputType="textEmailAddress"
+            android:layout_width="match_parent"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/white" />
+        <EditText
+            android:id="@+id/edtCelularCambiar"
+            android:background="@drawable/edittext_background"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
+            android:hint="Nombre"
             android:inputType="textEmailAddress"
             android:layout_width="match_parent"
             android:paddingStart="16dp"

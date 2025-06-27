@@ -2,14 +2,18 @@ package com.example.appv1.recuperar
 
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appv1.R
-import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CambiarContrasena : AppCompatActivity() {
 
-    private lateinit var edtCodigo: EditText
+    private lateinit var edtNombre: EditText
+    private lateinit var edtCelular: EditText
     private lateinit var edtNuevaContrasena: EditText
     private lateinit var edtConfirmarNuevaContrasena: EditText
     private lateinit var btnCambiar: Button
@@ -21,57 +25,84 @@ class CambiarContrasena : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cambiar_contrasena)
 
-        edtCodigo = findViewById(R.id.edtCodigo)
+        edtNombre = findViewById(R.id.edtNombreCambiar)
+        edtCelular = findViewById(R.id.edtCelularCambiar)
         edtNuevaContrasena = findViewById(R.id.edtNuevaContrasena)
         edtConfirmarNuevaContrasena = findViewById(R.id.edtConfirmarNuevaContrasena)
         btnCambiar = findViewById(R.id.btnCambiar)
         progressBar = findViewById(R.id.progressBar)
 
-        // Recibir datos de la actividad anterior
-        correo = intent.getStringExtra("correo").toString()
-        tipoUsuario = intent.getStringExtra("tipoUsuario").toString()
+        correo = intent.getStringExtra("correo") ?: ""
+        tipoUsuario = intent.getStringExtra("tipoUsuario") ?: ""
 
         btnCambiar.setOnClickListener {
-            val codigo = edtCodigo.text.toString().trim()
+            val nombre = edtNombre.text.toString().trim()
+            val celular = edtCelular.text.toString().trim()
             val nuevaContrasena = edtNuevaContrasena.text.toString().trim()
             val confirmarContrasena = edtConfirmarNuevaContrasena.text.toString().trim()
 
-            if (nuevaContrasena == confirmarContrasena) {
-                progressBar.visibility = View.VISIBLE
-                changePassword(codigo, nuevaContrasena)
-            } else {
-                Toast.makeText(this, "Las contraseñas no coinciden.", Toast.LENGTH_SHORT).show()
+            if (nombre.isEmpty() || celular.isEmpty() || nuevaContrasena.isEmpty()) {
+                Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (nuevaContrasena != confirmarContrasena) {
+                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            progressBar.visibility = View.VISIBLE
+            buscarUsuarioYActualizar(nombre, celular, nuevaContrasena)
         }
     }
 
-    private fun changePassword(codigo: String, nuevaContrasena: String) {
-        val functions = FirebaseFunctions.getInstance()
+    private fun buscarUsuarioYActualizar(nombre: String, celular: String, nuevaContrasena: String) {
+        val db = FirebaseFirestore.getInstance()
+        val organizacionRef = db.collection("organizacion")
 
-        val data = hashMapOf(
-            "email" to correo,
-            "code" to codigo,
-            "newPassword" to nuevaContrasena,
-            "userType" to tipoUsuario
-        )
+        organizacionRef.get().addOnSuccessListener { orgSnap ->
+            for (orgDoc in orgSnap.documents) {
+                val orgId = orgDoc.id
+                val ruta = if (tipoUsuario == "Administradores") "administradores" else "cuidadores"
 
-        functions.getHttpsCallable("changePassword")
-            .call(data)
-            .addOnSuccessListener { result ->
-                val success = result.data as Map<*, *>
-                if (success["success"] == true) {
-                    Toast.makeText(this, "Contraseña cambiada con éxito", Toast.LENGTH_SHORT).show()
-                    progressBar.visibility = View.GONE
-                    // Volver a la pantalla de login o al inicio
-                    finish()
-                } else {
-                    Toast.makeText(this, "Código inválido o error al cambiar la contraseña", Toast.LENGTH_SHORT).show()
-                    progressBar.visibility = View.GONE
-                }
+                db.collection("organizacion").document(orgId)
+                    .collection(ruta)
+                    .whereEqualTo("email", correo)
+                    .get()
+                    .addOnSuccessListener { userSnap ->
+                        if (!userSnap.isEmpty) {
+                            val userDoc = userSnap.documents[0]
+                            val userId = userDoc.id
+                            val campoCel = if (tipoUsuario == "Cuidadores") "cel" else "celular"
+
+                            val nombreDB = userDoc.getString("nombre") ?: ""
+                            val celDB = userDoc.getString(campoCel) ?: ""
+
+                            if (nombreDB == nombre && celDB == celular) {
+                                db.collection("organizacion").document(orgId)
+                                    .collection(ruta).document(userId)
+                                    .update("password", nuevaContrasena)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(this, "Contraseña actualizada", Toast.LENGTH_SHORT).show()
+                                        progressBar.visibility = View.GONE
+                                        finish()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(this, "Error al actualizar contraseña", Toast.LENGTH_SHORT).show()
+                                        progressBar.visibility = View.GONE
+                                    }
+                            } else {
+                                Toast.makeText(this, "Datos incorrectos", Toast.LENGTH_SHORT).show()
+                                progressBar.visibility = View.GONE
+                            }
+                         } else {
+                            progressBar.visibility = View.GONE
+                        }
+                    }
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al comunicarse con el servidor", Toast.LENGTH_SHORT).show()
-                progressBar.visibility = View.GONE
-            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error al buscar usuario", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.GONE
+        }
     }
 }

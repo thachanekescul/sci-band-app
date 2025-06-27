@@ -1,155 +1,184 @@
 package com.example.appv1.paciente
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.widget.Button
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import com.example.appv1.R
-import com.example.appv1.paciente.manejodatos.BlePacienteManager
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.appv1.paciente.service.BlePacienteService
 
 class HomePaciente : AppCompatActivity() {
 
+    private lateinit var pulsoView: TextView
+    private lateinit var oxigenoView: TextView
+    private lateinit var temperaturaView: TextView
+    private lateinit var estadoConexionView: TextView
+    private lateinit var btnMedir: AppCompatButton
 
-    private lateinit var bleManager: BlePacienteManager
+    private val receptor = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val pulso = intent?.getIntExtra("pulso", 0) ?: 0
+            val oxigeno = intent?.getIntExtra("oxigeno", 0) ?: 0
+            val temperatura = intent?.getDoubleExtra("temperatura", 0.0) ?: 0.0
 
-    private lateinit var txtEstadoConexion: TextView
-    private lateinit var txtTemperatura: TextView
-    private lateinit var txtPulso: TextView
-    private lateinit var txtOxigeno: TextView
-    private lateinit var btnMedir: Button
+            pulsoView.text = pulso.toString()
+            oxigenoView.text = oxigeno.toString()
+            temperaturaView.text = "$temperatura °C"
+        }
+    }
 
-    private lateinit var idPaciente: String
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    override fun onResume() {
+        super.onResume()
+
+        // Mostrar como desconectado por defecto
+        estadoConexionView.text = "Desconectado"
+        estadoConexionView.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receptor, IntentFilter("DATOS_PULSERA"), Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(receptor, IntentFilter("DATOS_PULSERA"))
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(receptor)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_paciente)
 
-        txtEstadoConexion = findViewById(R.id.txtEstadoConexion)
-        txtTemperatura = findViewById(R.id.temperatura)
-        txtPulso = findViewById(R.id.hrtpulso)
-        txtOxigeno = findViewById(R.id.oxigeno)
+        pulsoView = findViewById(R.id.hrtpulso)
+        oxigenoView = findViewById(R.id.oxigeno)
+        temperaturaView = findViewById(R.id.temperatura)
+        estadoConexionView = findViewById(R.id.txtEstadoConexion)
         btnMedir = findViewById(R.id.button2)
 
-        val prefs = getSharedPreferences("usuario_sesion", Context.MODE_PRIVATE)
-        idPaciente = prefs.getString("id_usuario", "sin_id") ?: "sin_id"
+        // Valor por defecto al iniciar
+        estadoConexionView.text = "Desconectado"
+        estadoConexionView.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
 
-        bleManager = BlePacienteManager(this, idPaciente)
-
-        observarDatos()
         btnMedir.setOnClickListener {
-            bleManager.solicitarMedicion()
-            Toast.makeText(this, "Solicitando medición...", Toast.LENGTH_SHORT).show()
+            pedirPermisos()
         }
-
-        conectarDispositivo()
     }
 
-    private fun observarDatos() {
-        lifecycleScope.launch {
-            bleManager.sensorDataFlow.collect { data ->
-                data?.let {
-                    txtTemperatura.text = "%.1f °C".format(it.temperatura)
-                    txtPulso.text = it.pulso.toString()
-                    txtOxigeno.text = it.oxigeno.toString()
+    private fun pedirPermisos() {
+        val permisos = mutableListOf(
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
-                    subirDatoBioDiario(idPaciente, it.pulso, it.oxigeno, it.temperatura)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permisos.add(Manifest.permission.BLUETOOTH_SCAN)
+            permisos.add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+
+        permisosLauncher.launch(permisos.toTypedArray())
+    }
+
+    @SuppressLint("MissingPermission")
+    private val permisosLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        val todosOtorgados = resultado.entries.all { it.value }
+
+        if (!todosOtorgados) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    escanearYConectar()
+                } else {
+                    Toast.makeText(this, "Permiso BLUETOOTH_SCAN no otorgado", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private fun conectarDispositivo() {
-        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
-            Toast.makeText(this, "Bluetooth no está activo", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val dispositivos = bluetoothAdapter.bondedDevices
-        val dispositivo = dispositivos.find { it.name == "SCI-BAND paciente" } // <- nombre BLE desde Arduino
-
-        if (dispositivo == null) {
-            Toast.makeText(this, "No se encontró la pulsera vinculada", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        txtEstadoConexion.text = "Conectando a ${dispositivo.name}..."
-        bleManager.connect(dispositivo)
-            .retry(3, 100)
-            .useAutoConnect(true)
-            .enqueue()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        bleManager.disconnect()
-    }
-
-    private suspend fun subirDatoBioDiario(
-        idPaciente: String,
-        pulso: Int,
-        oxigeno: Int,
-        temperatura: Double
-    ): Boolean {
-        val db = FirebaseFirestore.getInstance()
-        val bioDatosRef = db.collection("pacientes")
-            .document(idPaciente)
-            .collection("bio-datos")
-
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val hoy = dateFormat.format(Date())
-
-        return try {
-            val ultimoDoc = bioDatosRef
-                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(1)
-                .get()
-                .await()
-
-            val ultimoId: Int
-            val fechaUltimo: String
-
-            if (ultimoDoc.isEmpty) {
-                ultimoId = 0
-                fechaUltimo = ""
             } else {
-                val doc = ultimoDoc.documents[0]
-                val ts = doc.getLong("timestamp") ?: 0L
-                fechaUltimo = dateFormat.format(Date(ts))
-                ultimoId = doc.getLong("id")?.toInt() ?: 0
+                escanearYConectar()
+            }
+        } else {
+            Toast.makeText(this, "Debes aceptar todos los permisos para conectar la pulsera", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+    private fun escanearYConectar() {
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        val scanner = bluetoothAdapter.bluetoothLeScanner
+
+        val filtro = ScanFilter.Builder()
+            .setDeviceName("SCI-BAND paciente")
+            .build()
+
+        val settings = ScanSettings.Builder().build()
+
+        scanner.startScan(listOf(filtro), settings, object : ScanCallback() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                scanner.stopScan(this)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    if (!this@HomePaciente.isInForeground()) {
+                        Toast.makeText(this@HomePaciente, "No se puede iniciar el servicio si la app no está activa", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                }
+
+                val intent = Intent(this@HomePaciente, BlePacienteService::class.java)
+                intent.putExtra("device", result.device)
+
+                ContextCompat.startForegroundService(this@HomePaciente, intent)
+                Toast.makeText(this@HomePaciente, "Pulsera conectada", Toast.LENGTH_SHORT).show()
+
+
+                estadoConexionView.text = "Conectado"
+                estadoConexionView.setTextColor(ContextCompat.getColor(this@HomePaciente, android.R.color.holo_green_light))
             }
 
-            val nuevoId = if (fechaUltimo != hoy) 1 else ultimoId + 1
+            override fun onScanFailed(errorCode: Int) {
+                Toast.makeText(this@HomePaciente, "Fallo al escanear BLE ($errorCode)", Toast.LENGTH_SHORT).show()
+                Log.e("BLE", "Scan falló: $errorCode")
 
-            val dato = hashMapOf(
-                "pulso" to pulso,
-                "oxigeno" to oxigeno,
-                "temperatura" to temperatura,
-                "timestamp" to System.currentTimeMillis(),
-                "id" to nuevoId
-            )
 
-            bioDatosRef.document(nuevoId.toString()).set(dato).await()
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+                estadoConexionView.text = "Desconectado"
+                estadoConexionView.setTextColor(ContextCompat.getColor(this@HomePaciente, android.R.color.holo_red_light))
+            }
+
+            fun Context.isInForeground(): Boolean {
+                val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+                val appProcesses = activityManager.runningAppProcesses ?: return false
+                val packageName = packageName
+                for (appProcess in appProcesses) {
+                    if (appProcess.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                        appProcess.processName == packageName) {
+                        return true
+                    }
+                }
+                return false
+            }
+        })
     }
 }
